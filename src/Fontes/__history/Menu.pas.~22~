@@ -1,0 +1,40 @@
+unit Menu;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Menus, Produtores, Data.DBXFirebird, Data.DB, Data.SqlExpr;
+
+type
+  TFrMenu = class(TForm)
+    mmMenu: TMainMenu;
+    miParametros: TMenuItem;
+    miProdutores: TMenuItem;
+    miDistribuidores: TMenuItem;
+    miNegociacao: TMenuItem;
+    sqlConect: TSQLConnection;
+    miProdutos: TMenuItem;
+    procedure miProdutoresClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrMenu: TFrMenu;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFrMenu.miProdutoresClick(Sender: TObject);
+var
+  frmProdutores: TfrProdutores;
+begin
+  frmProdutores := TfrProdutores.Create(Application);
+  frmProdutores.ShowModal;
+end;
+
+end.

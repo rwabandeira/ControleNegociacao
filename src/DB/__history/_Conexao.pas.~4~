@@ -1,0 +1,52 @@
+unit _conexao;
+
+interface
+
+uses
+  SysUtils, SqlExPr, Forms, Variants, DBXInterBase, SyncObjs;
+
+function Conexao: TSQLConnection;
+
+implementation
+
+function Conexao: TSQLConnection;
+begin
+  Result := TSQLConnection.Create(nil);
+
+  Result.Params.Clear;
+  Result.Connected := False;
+  Result.KeepConnection := False;
+  Result.LoginPrompt := False;
+  Result.ConnectionName := 'FBConnection';
+  Result.DriverName := 'Firebird';
+  Result.Params.Add('DriverUnit=Data.DBXFirebird');
+  Result.Params.Add('DriverPackageLoader=TDBXDynalinkDriverLoader,DbxCommonDriver250.bpl');
+  Result.Params.Add('DriverAssemblyLoader=Borland.Data.TDBXDynalinkDriverLoader,Borland.Data.DbxCommonDriver,Version=24.0.0.0,Culture=neutral,PublicKeyToken=91d62ebb5b0d1b1b');
+  Result.Params.Add('MetaDataPackageLoader=TDBXFirebirdMetaDataCommandFactory,DbxFirebirdDriver250.bpl');
+  Result.Params.Add('MetaDataAssemblyLoader=Borland.Data.TDBXFirebirdMetaDataCommandFactory,Borland.Data.DbxFirebirdDriver,Version=24.0.0.0,Culture=neutral,PublicKeyToken=91d62ebb5b0d1b1b');
+  Result.Params.Add('GetDriverFunc=getSQLDriverINTERBASE');
+  Result.Params.Add('LibraryName=dbxfb.dll');
+  Result.Params.Add('LibraryNameOsx=libsqlfb.dylib');
+  Result.Params.Add('VendorLib=fbclient.dll');
+  Result.Params.Add('VendorLibWin64=fbclient.dll');
+  Result.Params.Add('VendorLibOsx=/Library/Frameworks/Firebird.framework/Firebird');
+  Result.Params.Add('Database=LOCALHOST/3050:C:\SIAGRI\data\AVALIACAO.FDB');
+  Result.Params.Add('User_Name=sysdba');
+  Result.Params.Add('Password=masterkey');
+  Result.Params.Add('Role=RoleName');
+  Result.Params.Add('MaxBlobSize=-1');
+  Result.Params.Add('LocaleCode=0000');
+  Result.Params.Add('IsolationLevel=ReadCommitted');
+  Result.Params.Add('SQLDialect=3');
+  Result.Params.Add('CommitRetain=False');
+  Result.Params.Add('WaitOnLocks=True');
+  Result.Params.Add('TrimChar=False');
+  Result.Params.Add('BlobSize=-1');
+  Result.Params.Add('RoleName=RoleName');
+  Result.Params.Add('Trim Char=False');
+  Result.Params.Add('DriverName=Firebird');
+
+  Result.Connected := True;
+end;
+
+end.

@@ -1,0 +1,5 @@
+inherited FrDistribuidor: TFrDistribuidor
+  Caption = 'FrDistribuidor'
+  PixelsPerInch = 96
+  TextHeight = 13
+end

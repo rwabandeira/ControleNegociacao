@@ -1,0 +1,25 @@
+unit Distribuidor;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CrudCadastro, Vcl.StdCtrls, Vcl.Buttons,
+  Vcl.ExtCtrls;
+
+type
+  TFormCrudCadastro2 = class(TFormCrudCadastro)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormCrudCadastro2: TFormCrudCadastro2;
+
+implementation
+
+{$R *.dfm}
+
+end.

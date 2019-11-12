@@ -1,0 +1,42 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Menu'
+  ClientHeight = 299
+  ClientWidth = 635
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  Menu = mmMenu
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object mmMenu: TMainMenu
+    Left = 576
+    Top = 248
+    object miCadastro: TMenuItem
+      Caption = 'Cadastro'
+      object miProdutor: TMenuItem
+        Caption = 'Produtor'
+      end
+      object miDistribuidor: TMenuItem
+        Caption = 'Distribuidor'
+      end
+      object miProduto: TMenuItem
+        Caption = 'Produto'
+      end
+    end
+    object miNegociacao: TMenuItem
+      Caption = 'Negocia'#231#227'o'
+    end
+    object miRelatorios: TMenuItem
+      Caption = 'Relat'#243'rios'
+      object miRelNegociacao: TMenuItem
+        Caption = 'Negocia'#231#227'o'
+      end
+    end
+  end
+end

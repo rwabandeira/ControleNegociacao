@@ -1,0 +1,177 @@
+unit PesquisarCadastros;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Grids, ExtCtrls, SqlExPr, Types, _Conexao, _Cadastro;
+
+type
+  TDados = record
+    codigo: Integer;
+    nome: string;
+  end;
+  TArrayOfDados = array of TDados;
+
+  TFrPesquisaCadastros = class(TForm)
+    pnFiltros: TPanel;
+    lbChave: TLabel;
+    lbFiltros: TLabel;
+    cbFiltros: TComboBox;
+    eChave: TEdit;
+    sgPesquisa: TStringGrid;
+    procedure eChaveKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sgPesquisaDblClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    dados:TArrayOfDados;
+    procedure BuscarCadastro;
+    procedure PreencherGrid;
+  public
+    tipo_pesquisa: string;
+    cadastro: WebCadastro;
+    cadastros: TArrayOfWebCadastro;
+  end;
+
+const
+  //sgPesquisa
+  cCodigo = 0;
+  cNome   = 1;
+
+implementation
+
+uses
+  Cadastros;
+
+{$R *.dfm}
+
+procedure TFrPesquisaCadastros.PreencherGrid;
+var
+  i: Integer;
+  linha: Integer;
+begin
+  linha := sgPesquisa.FixedRows;
+  sgPesquisa.RowCount := sgPesquisa.FixedRows + 1;
+
+  for i := Low(dados) to High(dados) do begin
+    sgPesquisa.Cells[cCodigo, linha] := IntToStr(dados[i].codigo);
+    sgPesquisa.Cells[cNome, linha] := dados[i].nome;
+
+    linha := linha + 1;
+  end;
+
+  sgPesquisa.RowCount := linha;
+end;
+
+procedure TFrPesquisaCadastros.BuscarCadastro;
+var
+  i: Integer;
+  con: TSqlConnection;
+  comando: string;
+begin
+  con := _Conexao.Conexao;
+  if cbFiltros.ItemIndex = 0 then
+    comando := 'and CADASTRO_ID = ' + eChave.Text
+  else
+    comando := 'and NOME like ' + QuotedStr('%' + eChave.Text + '%');
+
+  cadastros := _Cadastro.BuscarCadastros(con, comando);
+
+  if cadastros = nil then begin
+    Application.MessageBox('Nenhum dado encontrado!', 'Atenção!', 0);
+    Abort;
+  end;
+
+  dados := nil;
+  for i := Low(cadastros) to High(cadastros) do begin
+    SetLength(dados, Length(dados) + 1);
+    dados[High(dados)].codigo := cadastros[i].cadastro_id;
+    dados[High(dados)].nome := cadastros[i].nome;
+  end;
+
+  PreencherGrid;
+end;
+
+procedure TFrPesquisaCadastros.eChaveKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key = VK_RETURN then begin
+    if tipo_pesquisa = 'CAD' then
+      BuscarCadastro;
+  end;
+end;
+
+procedure TFrPesquisaCadastros.FormShow(Sender: TObject);
+var
+  titulo: string;
+begin
+  if tipo_pesquisa = 'CAD' then begin
+    titulo := 'Cadastros';
+    cbFiltros.Items.Clear;
+    cbFiltros.Items.Add('Código');
+    cbFiltros.Items.Add('Razão social');
+    cbFiltros.ItemIndex := 1;
+
+    sgPesquisa.Cells[cCodigo, sgPesquisa.FixedRows -1] := 'Código';
+    sgPesquisa.Cells[cNome, sgPesquisa.FixedRows -1] := 'Razão social';
+  end;
+
+  Caption := Caption + ' ' + titulo;
+  eChave.SetFocus;
+end;
+
+procedure TFrPesquisaCadastros.sgPesquisaDblClick(Sender: TObject);
+var
+  i: Integer;
+begin
+  if tipo_pesquisa = 'CAD' then begin
+    for i := Low(cadastros) to High(cadastros) do begin
+      if cadastros[i].cadastro_id = StrToInt(sgPesquisa.Cells[cCodigo, sgPesquisa.Row]) then begin
+        cadastro.cadastro_id := cadastros[i].cadastro_id;
+        cadastro.razao_social := cadastros[i].razao_social;
+        cadastro.nome_fantasia := cadastros[i].nome_fantasia;
+        cadastro.cnpj := cadastros[i].cnpj;
+        cadastro.tipo_cadastro := cadastros[i].tipo_cadastro;
+      end;
+    end;
+  end
+  else if tipo_pesquisa = 'GRA' then begin
+    for i := Low(graos) to High(graos) do begin
+      if graos[i].grao_id = StrToInt(sgPesquisa.Cells[cCodigo, sgPesquisa.Row]) then begin
+        grao.grao_id := graos[i].grao_id;
+        grao.descricao := graos[i].descricao;
+      end;
+    end;
+  end
+  else if tipo_pesquisa = 'SIL' then begin
+    for i := Low(silos) to High(silos) do begin
+      if silos[i].silo_id = StrToInt(sgPesquisa.Cells[cCodigo, sgPesquisa.Row]) then begin
+        silo.silo_id := silos[i].silo_id;
+        silo.descricao := silos[i].descricao;
+        silo.trade_id := silos[i].trade_id;
+        silo.trade_razao := silos[i].trade_razao;
+        silo.capacidade := silos[i].capacidade;
+        silo.alocado := silos[i].alocado;
+        silo.disponivel := silos[i].disponivel;
+      end;
+    end;
+  end
+  else if tipo_pesquisa = 'CNT' then begin
+    for i := Low(contratos) to High(contratos) do begin
+      if contratos[i].contrato_id = StrToInt(sgPesquisa.Cells[cCodigo, sgPesquisa.Row]) then begin
+        contrato.contrato_id := contratos[i].contrato_id;
+        contrato.periodo := contratos[i].periodo;
+        contrato.produtor_id := contratos[i].produtor_id;
+        contrato.produtor_razao := contratos[i].produtor_razao;
+        contrato.trade_id := contratos[i].trade_id;
+        contrato.trade_razao := contratos[i].trade_razao;
+        contrato.grao_id := contratos[i].grao_id;
+        contrato.grao_descricao := contratos[i].grao_descricao;
+        contrato.grao_quantidade := contratos[i].grao_quantidade;
+      end;
+    end;
+  end;
+
+  Close;
+end;
+
+end.

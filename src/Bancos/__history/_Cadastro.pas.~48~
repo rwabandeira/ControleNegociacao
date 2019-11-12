@@ -1,0 +1,150 @@
+unit _Cadastro;
+
+interface
+
+uses
+  SysUtils, _Conexao, SqlExPr, Forms;
+
+Type
+  WebCadastro = record
+    cadastro_id: Integer;
+    nome: string;
+    inscricao: string;
+    cpf_cnpj: string;
+    tipo: string;
+  end;
+  TArrayOfWebCadastro = array of WebCadastro;
+
+function BuscarCadastros(con: TSqlConnection; comando: string): TArrayOfWebCadastro;
+procedure AtualizarCadastro(con: TSqlConnection; cadastro: WebCadastro);
+procedure ExcluirCadastro(con: TSqlConnection; cadastro_id: Integer);
+
+implementation
+
+procedure ExcluirCadastro(con: TSqlConnection; cadastro_id: Integer);
+var
+  pesq: TSqlQuery;
+begin
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  sum(QTD) as QTD');
+  pesq.SQL.Add('from (');
+  pesq.SQL.Add('  select');
+  pesq.SQL.Add('    count(*) as QTD');
+  pesq.SQL.Add('  from');
+  pesq.SQL.Add('    LIMITE_CREDITOS');
+  pesq.SQL.Add('  where PRODUTOR_ID = ' + QuotedStr(IntToStr(cadastro_id)) + '');
+  pesq.SQL.Add('  or DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(cadastro_id)) + '');
+
+  pesq.SQL.Add('  union all ');
+
+  pesq.SQL.Add('  select');
+  pesq.SQL.Add('    count(*) as QTD');
+  pesq.SQL.Add('  from SILOS');
+  pesq.SQL.Add('  where TRADE_ID = '+ QuotedStr(IntToStr(cadastro_id)) +'');
+  pesq.SQL.Add(')');
+
+  pesq.Open;
+
+  if pesq.FieldByName('QTD').AsInteger > 0 then begin
+    Application.MessageBox(Pchar('O cadastro informado possui registros associados e não pode ser excluido!'), 'Atenção', 0);
+    Abort;
+  end;
+
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('delete from CADASTROS where CADASTRO_ID = ' + QuotedStr(IntToStr(cadastro_id)) + '');
+  pesq.ExecSQL;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+procedure AtualizarCadastro(con: TSqlConnection; cadastro: WebCadastro);
+var
+  pesq: TSqlQuery;
+begin
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  if cadastro.cadastro_id = 0 then begin
+    pesq.SQL.Add('select gen_id(SEQ_CADASTROS, 1) as ID from rdb$database');
+    pesq.Open;
+    cadastro.cadastro_id := pesq.FieldByName('ID').AsInteger;
+
+    pesq.Close;
+    pesq.SQL.Clear;
+
+    pesq.SQL.Add('insert into CADASTROS (');
+    pesq.SQL.Add('  CADASTRO_ID,');
+    pesq.SQL.Add('  NOME,');
+    pesq.SQL.Add('  INSCRICAO,');
+    pesq.SQL.Add('  CNPJ,');
+    pesq.SQL.Add('  TIPO');
+    pesq.SQL.Add(') values (');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(cadastro.cadastro_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(cadastro.nome) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(cadastro.inscricao) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(cadastro.cpf_cnpj) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(cadastro.tipo) + ' ');
+    pesq.SQL.Add(')');
+  end
+  else begin
+    pesq.SQL.Add('update CADASTROS set');
+    pesq.SQL.Add('  NOME = ' + QuotedStr(cadastro.nome) + ',');
+    pesq.SQL.Add('  INSCRICAO = ' + QuotedStr(cadastro.inscricao) + ',');
+    pesq.SQL.Add('  CPF_CNPJ = ' + QuotedStr(cadastro.cpf_cnpj) + ',');
+    pesq.SQL.Add('  TIPO = ' + QuotedStr(cadastro.tipo) + '');
+    pesq.SQL.Add('where CADASTRO_ID = ' + QuotedStr(IntToStr(cadastro.cadastro_id)) + '');
+  end;
+
+  pesq.ExecSQL;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+function BuscarCadastros(con: TSqlConnection; comando: string): TArrayOfWebCadastro;
+var
+  pesq: TSqlQuery;
+begin
+  Result := nil;
+
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  CADASTRO_ID,');
+  pesq.SQL.Add('  NOME,');
+  pesq.SQL.Add('  INSCRICAO,');
+  pesq.SQL.Add('  CPF_CNPJ,');
+  pesq.SQL.Add('  TIPO');
+  pesq.SQL.Add('from');
+  pesq.SQL.Add('  CADASTROS');
+
+  pesq.SQL.Add('where 1 = 1');
+
+  pesq.SQL.Add(comando);
+
+  pesq.SQL.Add('order by');
+  pesq.SQL.Add('  CADASTRO_ID');
+
+  pesq.Open;
+
+  while not pesq.Eof do begin
+    SetLength(Result, Length(Result) + 1);
+
+    Result[High(Result)].cadastro_id := pesq.FieldByName('CADASTRO_ID').AsInteger;
+    Result[High(Result)].nome := pesq.FieldByName('NOME').AsString;
+    Result[High(Result)].inscricao := pesq.FieldByName('INSCRICAO').AsString;
+    Result[High(Result)].cpf_cnpj := pesq.FieldByName('CPF_CNPJ').AsString;
+    Result[High(Result)].tipo := pesq.FieldByName('TIPO').AsString;
+
+    pesq.Next;
+  end;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+end.
