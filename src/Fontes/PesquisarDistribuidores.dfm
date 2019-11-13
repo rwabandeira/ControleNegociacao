@@ -71,6 +71,8 @@ object FrPesquisarDistribuidores: TFrPesquisarDistribuidores
     Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRowSelect]
     TabOrder = 1
     OnDblClick = sgPesquisaDblClick
+    OnEnter = sgPesquisaEnter
+    OnKeyDown = sgPesquisaKeyDown
     ColWidths = (
       188
       397)

@@ -3,7 +3,7 @@ unit _Produtor;
 interface
 
 uses
-  SysUtils, _DB, SqlExPr, Forms;
+  SysUtils, _DB, SqlExPr, Forms, _LimiteCredito;
 
 Type
   WebProdutor = record
@@ -11,6 +11,7 @@ Type
     nome: string;
     inscricao: string;
     cpf_cnpj: string;
+    limite_creditos: TArrayOfWebLimiteCredito;
   end;
   TArrayOfWebProdutor = array of WebProdutor;
 

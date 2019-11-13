@@ -11,7 +11,8 @@ uses
   _Biblioteca in '_Biblioteca.pas',
   Distribuidores in 'Fontes\Distribuidores.pas' {FrDistribuidores},
   PesquisarDistribuidores in 'Fontes\PesquisarDistribuidores.pas' {FrPesquisarDistribuidores},
-  _Distribuidor in 'Bancos\_Distribuidor.pas';
+  _Distribuidor in 'Bancos\_Distribuidor.pas',
+  _LimiteCredito in 'Bancos\_LimiteCredito.pas';
 
 {$R *.res}
 

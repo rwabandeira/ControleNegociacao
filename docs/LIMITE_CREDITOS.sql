@@ -17,7 +17,7 @@ SET SQL DIALECT 3;
 
 CREATE TABLE LIMITE_CREDITOS (
     PRODUTOR_ID      INTEGER NOT NULL,
-    CREDITO          NUMERIC(10,2) NOT NULL,
+    LIMITE_CREDITO   NUMERIC(10,2) NOT NULL,
     DISTRIBUIDOR_ID  INTEGER NOT NULL
 );
 
@@ -28,14 +28,14 @@ CREATE TABLE LIMITE_CREDITOS (
 /*                             Check constraints                              */
 /******************************************************************************/
 
-ALTER TABLE LIMITE_CREDITOS ADD CONSTRAINT CK_LIM_CRED_INSCRICAO check (CREDITO >= 0);
+ALTER TABLE LIMITE_CREDITOS ADD CONSTRAINT CK_LIM_CRED_INSCRICAO check (LIMITE_CREDITO >= 0);
 
 
 /******************************************************************************/
 /*                                Primary keys                                */
 /******************************************************************************/
 
-ALTER TABLE LIMITE_CREDITOS ADD CONSTRAINT PK_LIMITE_CREDITO PRIMARY KEY (PRODUTOR_ID, DISTRIBUIDOR_ID);
+ALTER TABLE LIMITE_CREDITOS ADD CONSTRAINT PK_LIMITE_CREDITOS PRIMARY KEY (PRODUTOR_ID, DISTRIBUIDOR_ID);
 
 
 /******************************************************************************/

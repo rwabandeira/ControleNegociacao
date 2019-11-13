@@ -5,13 +5,15 @@ inherited FrProdutores: TFrProdutores
   ClientHeight = 376
   ClientWidth = 631
   Position = poMainFormCenter
+  OnCreate = FormCreate
+  OnShow = FormShow
   ExplicitWidth = 637
   ExplicitHeight = 405
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnBotoes: TPanel
     Width = 631
-    ExplicitWidth = 402
+    ExplicitWidth = 631
     inherited btGravar: TButton
       Caption = '&Gravar'
       OnClick = btGravarClick
@@ -38,7 +40,7 @@ inherited FrProdutores: TFrProdutores
       Align = alRight
       Caption = '&Pesquisar'
       OnClick = btPesquisarClick
-      ExplicitLeft = 332
+      ExplicitLeft = 561
       ExplicitTop = 0
       ExplicitHeight = 41
     end
@@ -46,8 +48,8 @@ inherited FrProdutores: TFrProdutores
   inherited pnCampos: TPanel
     Width = 631
     Height = 335
-    ExplicitWidth = 402
-    ExplicitHeight = 351
+    ExplicitWidth = 631
+    ExplicitHeight = 335
     object lbCodigo: TLabel
       Left = 6
       Top = 6
@@ -130,7 +132,7 @@ inherited FrProdutores: TFrProdutores
       Top = 75
       Width = 618
       Height = 222
-      ColCount = 3
+      ColCount = 2
       DefaultRowHeight = 19
       Enabled = False
       FixedCols = 0
@@ -138,22 +140,22 @@ inherited FrProdutores: TFrProdutores
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRowSelect]
       TabOrder = 5
       ColWidths = (
-        94
-        282
-        208)
+        412
+        181)
       RowHeights = (
         19
         19)
     end
-    object btIncluir: TButton
+    object btInserir: TButton
       Left = 372
       Top = 303
       Width = 80
       Height = 26
-      Caption = '&Incluir'
+      Caption = '&Inserir'
       Enabled = False
       TabOrder = 6
       TabStop = False
+      OnClick = btInserirClick
     end
     object btAlterar: TButton
       Left = 458

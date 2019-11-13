@@ -1,2 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject/>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2019/11/12 21:00:30.666,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2019/11/12 21:00:49.367,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Bancos\_LimiteCredito.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -4,15 +4,10 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Grids, ExtCtrls, SqlExPr, Types, _DB, _Distribuidor;
+  Dialogs, StdCtrls, Grids, ExtCtrls, SqlExPr, Types, _DB, _Distribuidor,
+  _Biblioteca;
 
 type
-  TDados = record
-    codigo: Integer;
-    nome: string;
-  end;
-  TArrayOfDados = array of TDados;
-
   TFrPesquisarDistribuidores = class(TForm)
     pnFiltros: TPanel;
     lbChave: TLabel;
@@ -23,8 +18,10 @@ type
     procedure eChaveKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure sgPesquisaDblClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure sgPesquisaEnter(Sender: TObject);
+    procedure sgPesquisaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
-    dados:TArrayOfDados;
     procedure BuscarDistribuidor;
     procedure PreencherGrid;
   public
@@ -55,27 +52,32 @@ begin
   linha := sgPesquisa.FixedRows;
   sgPesquisa.RowCount := sgPesquisa.FixedRows + 1;
 
-  for i := Low(dados) to High(dados) do begin
-    sgPesquisa.Cells[cCodigo, linha] := IntToStr(dados[i].codigo);
-    sgPesquisa.Cells[cNome, linha] := dados[i].nome;
+  for i := Low(distribuidores) to High(distribuidores) do begin
+    sgPesquisa.Cells[cCodigo, linha] := IntToStr(distribuidores[i].distribuidor_id);
+    sgPesquisa.Cells[cNome, linha] := distribuidores[i].nome;
 
     linha := linha + 1;
   end;
 
   sgPesquisa.RowCount := linha;
+  sgPesquisa.SetFocus;
 end;
 
 procedure TFrPesquisarDistribuidores.BuscarDistribuidor;
 var
-  i: Integer;
+//  i: Integer;
   con: TSqlConnection;
   comando: string;
 begin
   con := _DB.Conexao;
   if cbFiltros.ItemIndex = 0 then
-    comando := 'and PRODUTOR_ID = ' + eChave.Text
-  else
-    comando := 'and NOME like ' + QuotedStr('%' + eChave.Text + '%');
+    comando := 'and DISTRIBUIDOR_ID = ' + eChave.Text
+  else if cbFiltros.ItemIndex = 1 then
+    comando := 'and NOME like ' + QuotedStr('%' + eChave.Text + '%')
+  else begin
+    eChave.Text := _Biblioteca.FormatarCPFCNPJ(eChave.Text);
+    comando := 'and CPF_CNPJ = ' + QuotedStr(eChave.Text);
+  end;
 
   distribuidores := _Distribuidor.BuscarDistribuidores(con, comando);
 
@@ -84,12 +86,12 @@ begin
     Abort;
   end;
 
-  dados := nil;
-  for i := Low(distribuidores) to High(distribuidores) do begin
-    SetLength(dados, Length(dados) + 1);
-    dados[High(dados)].codigo := distribuidores[i].distribuidor_id;
-    dados[High(dados)].nome := distribuidores[i].nome;
-  end;
+//  dados := nil;
+//  for i := Low(distribuidores) to High(distribuidores) do begin
+//    SetLength(dados, Length(dados) + 1);
+//    dados[High(dados)].codigo := distribuidores[i].distribuidor_id;
+//    dados[High(dados)].nome := distribuidores[i].nome;
+//  end;
 
   PreencherGrid;
 end;
@@ -105,6 +107,7 @@ begin
   cbFiltros.Items.Clear;
   cbFiltros.Items.Add('Código');
   cbFiltros.Items.Add('Nome');
+  cbFiltros.Items.Add('Cpf/Cnpj(somente nmeros)');
   cbFiltros.ItemIndex := 1;
 
   sgPesquisa.Cells[cCodigo, sgPesquisa.FixedRows -1] := 'Código';
@@ -118,15 +121,30 @@ var
   i: Integer;
 begin
   for i := Low(distribuidores) to High(distribuidores) do begin
-    if distribuidores[i].distribuidor_id = StrToInt(sgPesquisa.Cells[cCodigo, sgPesquisa.Row]) then begin
-      distribuidor.distribuidor_id := distribuidores[i].distribuidor_id;
-      distribuidor.nome := distribuidores[i].nome;
-      distribuidor.inscricao := distribuidores[i].inscricao;
-      distribuidor.cpf_cnpj := distribuidores[i].cpf_cnpj;
-    end;
+    if distribuidores[i].distribuidor_id <> StrToInt(sgPesquisa.Cells[cCodigo, sgPesquisa.Row]) then
+      Continue;
+
+    distribuidor.distribuidor_id := distribuidores[i].distribuidor_id;
+    distribuidor.nome := distribuidores[i].nome;
+    distribuidor.inscricao := distribuidores[i].inscricao;
+    distribuidor.cpf_cnpj := distribuidores[i].cpf_cnpj;
+
+    Break;
   end;
 
   Close;
+end;
+
+procedure TFrPesquisarDistribuidores.sgPesquisaEnter(Sender: TObject);
+begin
+  BuscarDistribuidor;
+end;
+
+procedure TFrPesquisarDistribuidores.sgPesquisaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+    sgPesquisaDblClick(Sender);
 end;
 
 end.

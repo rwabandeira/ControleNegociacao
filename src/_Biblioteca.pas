@@ -8,6 +8,7 @@ uses
 function ValidarCpfCnpj(cpf_cnpj: string): Boolean;
 function Numeros(valor: string): string;
 function IIf(condicao:Boolean; verdadeiro, falso: Variant): Variant;
+function FormatarCPFCNPJ(valor: string): string;
 
 implementation
 
@@ -74,6 +75,25 @@ begin
     Result := verdadeiro
   else
     Result := falso;
+end;
+
+function FormatarCPFCNPJ(valor: string): string;
+begin
+  if Length(valor) = 11 then begin
+    Result :=
+      Copy(valor, 1, 3) + '.' +
+      Copy(valor, 4, 3) + '.' +
+      Copy(valor, 7, 3) + '-' +
+      Copy(valor, 11, 2);
+  end
+  else if (Length(valor) = 14) then begin
+    Result :=
+      Copy(valor, 1, 2) + '.' +
+      Copy(valor, 3, 3) + '.' +
+      Copy(valor, 6, 3) + '/' +
+      Copy(valor, 9, 4) + '-' +
+      Copy(valor, 13, 2);
+  end;
 end;
 
 end.
