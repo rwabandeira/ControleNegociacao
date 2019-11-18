@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, CrudCadastro, StdCtrls, Buttons, ExtCtrls, Mask, SqlExPr,
-  PesquisarDistribuidores, _Distribuidor, UITypes, _Biblioteca, Vcl.Grids;
+  PesquisarDistribuidores, _Distribuidor, UITypes, _Biblioteca, Vcl.Grids, _DB;
 
 type
   TFrDistribuidores = class(TFrCrudCadastro)
@@ -38,8 +38,6 @@ var
 implementation
 
 {$R *.dfm}
-
-uses _DB;
 
 procedure TFrDistribuidores.btCancelarClick(Sender: TObject);
 begin
@@ -143,20 +141,21 @@ var
   con: TSqlConnection;
 begin
   inherited;
-  if Key = VK_RETURN then begin
-    distribuidores := nil;
-    if eCodigo.Text <> '' then begin
-      con := _DB.Conexao;
-      distribuidores := _Distribuidor.BuscarDistribuidores(con, 'and DISTRIBUIDOR_ID = ' + eCodigo.Text);
+  if Key <> VK_RETURN then
+    Exit;
 
-      if distribuidores = nil then begin
-        Application.MessageBox('Distribuidor não encontrado!!', 'Atenção', 0);
-        Abort;
-      end;
+  distribuidores := nil;
+  if eCodigo.Text <> '' then begin
+    con := _DB.Conexao;
+    distribuidores := _Distribuidor.BuscarDistribuidores(con, 'and DISTRIBUIDOR_ID = ' + eCodigo.Text);
+
+    if distribuidores = nil then begin
+      Application.MessageBox('Distribuidor não encontrado!!', 'Atenção', 0);
+      Abort;
     end;
-
-    MontarDados(distribuidores);
   end;
+
+  MontarDados(distribuidores);
 end;
 
 procedure TFrDistribuidores.MontarDados(distribuidores: TArrayOfWebDistribuidor);

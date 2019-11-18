@@ -107,6 +107,23 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Bancos\_Distribuidor.pas"/>
+        <DCCReference Include="Bancos\_LimiteCredito.pas"/>
+        <DCCReference Include="Fontes\LimiteCreditos.pas">
+            <Form>FrLimiteCreditos</Form>
+        </DCCReference>
+        <DCCReference Include="Fontes\Produtos.pas">
+            <Form>FrProdutos</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Bancos\_Produto.pas"/>
+        <DCCReference Include="Fontes\PesquisarProdutos.pas">
+            <Form>FrPesquisarProdutos</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Fontes\Negociacoes.pas">
+            <Form>frNegociacoes</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -511,12 +528,12 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>

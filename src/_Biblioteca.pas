@@ -3,11 +3,15 @@ unit _Biblioteca;
 interface
 
 uses
-  SysUtils;
+  SysUtils, Grids;
 
 function ValidarCpfCnpj(cpf_cnpj: string): Boolean;
 function Numeros(valor: string): string;
 function IIf(condicao:Boolean; verdadeiro, falso: Variant): Variant;
+function FormatarCPFCNPJ(valor: string): string;
+
+procedure RemoverLinhaGrid(grid: TStringGrid; linha: Integer);
+function TrocaVirgulaPorPonto(AString: string): String;
 
 implementation
 
@@ -74,6 +78,53 @@ begin
     Result := verdadeiro
   else
     Result := falso;
+end;
+
+function FormatarCPFCNPJ(valor: string): string;
+begin
+  if Length(valor) = 11 then begin
+    Result :=
+      Copy(valor, 1, 3) + '.' +
+      Copy(valor, 4, 3) + '.' +
+      Copy(valor, 7, 3) + '-' +
+      Copy(valor, 11, 2);
+  end
+  else if (Length(valor) = 14) then begin
+    Result :=
+      Copy(valor, 1, 2) + '.' +
+      Copy(valor, 3, 3) + '.' +
+      Copy(valor, 6, 3) + '/' +
+      Copy(valor, 9, 4) + '-' +
+      Copy(valor, 13, 2);
+  end;
+end;
+
+procedure RemoverLinhaGrid(grid: TStringGrid; linha: Integer);
+var
+  i: Integer;
+begin
+  for i:= linha to grid.RowCount do
+    grid.Rows[i] := grid.Rows[i + 1];
+
+  if grid.RowCount >2 then
+    grid.RowCount := grid.RowCount - 1;
+end;
+
+function TrocaVirgulaPorPonto(AString: string): String;
+var
+  i : Integer;
+  s : string;
+begin
+  s := '';
+
+  for i := 1 to Length(AString) do begin
+    if  AString[i] = ',' then
+      s := s + '.'
+    else
+      s := s + AString[i];
+  end;
+
+  Result := s;
 end;
 
 end.

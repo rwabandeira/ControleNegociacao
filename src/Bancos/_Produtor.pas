@@ -3,7 +3,7 @@ unit _Produtor;
 interface
 
 uses
-  SysUtils, _DB, SqlExPr, Forms;
+  SysUtils, _DB, SqlExPr, Forms, _LimiteCredito;
 
 Type
   WebProdutor = record
@@ -11,6 +11,7 @@ Type
     nome: string;
     inscricao: string;
     cpf_cnpj: string;
+    limite_creditos: TArrayOfWebLimiteCreditos;
   end;
   TArrayOfWebProdutor = array of WebProdutor;
 
@@ -65,6 +66,7 @@ end;
 procedure AtualizarProdutor(con: TSqlConnection; produtor: WebProdutor);
 var
   pesq: TSqlQuery;
+  i: Integer;
 begin
   pesq := TSqlQuery.Create(con);
   pesq.SQLConnection := con;
@@ -94,10 +96,33 @@ begin
     pesq.SQL.Add('  NOME = ' + QuotedStr(produtor.nome) + ',');
     pesq.SQL.Add('  INSCRICAO = ' + QuotedStr(produtor.inscricao) + ',');
     pesq.SQL.Add('  CPF_CNPJ = ' + QuotedStr(produtor.cpf_cnpj) + '');
-    pesq.SQL.Add('where PRODUTOR_ID = ' + QuotedStr(IntToStr(produtor.produtor_id)) + '');
+    pesq.SQL.Add('where PRODUTOR_ID = ' + QuotedStr(IntToStr(produtor.produtor_id)));
   end;
 
   pesq.ExecSQL;
+
+  pesq.SQL.Clear;
+  pesq.SQL.Add('delete from LIMITE_CREDITOS where PRODUTOR_ID = ' + QuotedStr(IntToStr(produtor.produtor_id)));
+  pesq.ExecSQL;
+
+  if produtor.limite_creditos <> nil then begin
+    for i := Low(produtor.limite_creditos) to High(produtor.limite_creditos) do begin
+      pesq.SQL.Clear;
+
+      pesq.SQL.Add('insert into LIMITE_CREDITOS (');
+      pesq.SQL.Add('  PRODUTOR_ID,');
+      pesq.SQL.Add('  DISTRIBUIDOR_ID,');
+      pesq.SQL.Add('  LIMITE_CREDITO');
+      pesq.SQL.Add(') values (');
+      pesq.SQL.Add('  ' + QuotedStr(IntToStr(produtor.limite_creditos[i].produtor_id)) + ',');
+      pesq.SQL.Add('  ' + QuotedStr(IntToStr(produtor.limite_creditos[i].distribuidor_id)) + ',');
+      pesq.SQL.Add('  ' + QuotedStr(CurrToStr(produtor.limite_creditos[i].limite_credito)));
+      pesq.SQL.Add(')');
+
+      pesq.ExecSQL;
+    end;
+
+  end;
 
   pesq.Active := False;
   pesq.Free;

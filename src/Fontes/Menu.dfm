@@ -30,10 +30,12 @@ object FrMenu: TFrMenu
       end
       object miProdutos: TMenuItem
         Caption = 'Produtos'
+        OnClick = miProdutosClick
       end
     end
     object miNegociacao: TMenuItem
       Caption = 'Negocia'#231#227'o'
+      OnClick = miNegociacaoClick
     end
   end
   object sqlConect: TSQLConnection

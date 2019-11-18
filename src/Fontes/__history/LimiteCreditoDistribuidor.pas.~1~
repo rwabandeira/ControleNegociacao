@@ -1,0 +1,104 @@
+unit LimiteCreditoDistribuidor;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, _LimiteCredito,
+  PesquisarDistribuidores, Vcl.ExtCtrls;
+
+type
+  TFrLimiteCreditoDistribuidor = class(TForm)
+    lbLimiteCredito: TLabel;
+    eDistribuidorId: TEdit;
+    eLimiteCredito: TEdit;
+    lbDistribuidorId: TLabel;
+    lbNome: TLabel;
+    eNome: TEdit;
+    btPesquisar: TButton;
+    sgLimiteCredito: TStringGrid;
+    pnBotoes: TPanel;
+    Button1: TButton;
+    btOk: TButton;
+    procedure eLimiteCreditoExit(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+const
+  //sgLimiteCredito
+  cDistribuidor     = 0;
+  cLimite_Credito   = 1;
+  //sgLimiteCredito(ocultas)
+  cDistribuidor_Id  = 2;
+
+var
+  FrLimiteCreditoDistribuidor: TFrLimiteCreditoDistribuidor;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFrLimiteCreditoDistribuidor.eLimiteCreditoExit(Sender: TObject);
+var
+  limite_creditos: TArrayOfWebLimiteCredito;
+  frmPesquisa: TFrPesquisarDistribuidores;
+  linha: Integer;
+  i: Integer;
+  posicao: Integer;
+begin
+  inherited;
+  frmPesquisa := TFrPesquisarDistribuidores.Create(Self);
+  frmPesquisa.ShowModal;
+
+  limite_creditos := nil;
+
+  if frmPesquisa.distribuidor.distribuidor_id > 0 then begin
+    SetLength(limite_creditos, 1);
+    limite_creditos[0].distribuidor_id := frmPesquisa.distribuidor.distribuidor_id;
+    limite_creditos[0].nome_distribuidor := frmPesquisa.distribuidor.nome;
+  end;
+
+  FreeAndNil(frmPesquisa);
+
+  if limite_creditos = nil then
+    Exit;
+
+  posicao := -1;
+  for i := sgLimiteCredito.FixedRows to sgLimiteCredito.RowCount -1 do  begin
+    if limite_creditos[0].distribuidor_id <> StrToIntDef(sgLimiteCredito.Cells[cDistribuidor_Id, i], 0) then
+      Continue;
+
+    posicao := i;
+    Break;
+  end;
+
+  if posicao <> -1 then begin
+    Application.MessageBox('Distribuidor já incluído', 'Atenção', 0);
+    sgLimiteCredito.Row := posicao;
+    Exit;
+  end;
+
+  if limite_creditos <> nil then begin
+    linha := sgLimiteCredito.RowCount -1;
+    sgLimiteCredito.Cells[cDistribuidor, linha] := IntToStr(limite_creditos[0].distribuidor_id) + ' - ' + limite_creditos[0].nome_distribuidor;
+    sgLimiteCredito.Cells[cLimite_Credito, linha] := FloatToStr(limite_creditos[0].limite_credito);
+
+    sgLimiteCredito.Cells[cDistribuidor_Id, linha] := IntToStr(limite_creditos[0].distribuidor_id);
+
+    linha := linha + 1;
+
+    sgLimiteCredito.RowCount := linha +1;
+  end;
+end;
+
+procedure TFrLimiteCreditoDistribuidor.FormCreate(Sender: TObject);
+begin
+  sgLimiteCredito.Cells[cDistribuidor, sgLimiteCredito.FixedRows -1] := 'Distribuidor';
+  sgLimiteCredito.Cells[cLimite_Credito, sgLimiteCredito.FixedRows -1] := 'Limite de crédito';
+end;
+
+end.

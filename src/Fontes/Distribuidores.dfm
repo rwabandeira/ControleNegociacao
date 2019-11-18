@@ -11,7 +11,7 @@ inherited FrDistribuidores: TFrDistribuidores
   TextHeight = 13
   inherited pnBotoes: TPanel
     Width = 398
-    ExplicitWidth = 631
+    ExplicitWidth = 398
     inherited btGravar: TButton
       Caption = '&Gravar'
       OnClick = btGravarClick
@@ -38,7 +38,7 @@ inherited FrDistribuidores: TFrDistribuidores
       Align = alRight
       Caption = '&Pesquisar'
       OnClick = btPesquisarClick
-      ExplicitLeft = 561
+      ExplicitLeft = 328
       ExplicitTop = 0
       ExplicitHeight = 41
     end
@@ -46,8 +46,8 @@ inherited FrDistribuidores: TFrDistribuidores
   inherited pnCampos: TPanel
     Width = 398
     Height = 104
-    ExplicitWidth = 631
-    ExplicitHeight = 351
+    ExplicitWidth = 398
+    ExplicitHeight = 104
     object lbCodigo: TLabel
       Left = 6
       Top = 6

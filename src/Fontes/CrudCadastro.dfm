@@ -32,9 +32,6 @@ object FrCrudCadastro: TFrCrudCadastro
       Caption = 'Gravar'
       TabOrder = 0
       TabStop = False
-      ExplicitLeft = 1
-      ExplicitTop = 1
-      ExplicitHeight = 39
     end
     object btCancelar: TButton
       Left = 140
@@ -45,9 +42,6 @@ object FrCrudCadastro: TFrCrudCadastro
       Caption = 'Cancelar'
       TabOrder = 2
       TabStop = False
-      ExplicitLeft = 141
-      ExplicitTop = 1
-      ExplicitHeight = 39
     end
     object btExcluir: TButton
       Left = 70
@@ -58,22 +52,17 @@ object FrCrudCadastro: TFrCrudCadastro
       Caption = 'Excluir'
       TabOrder = 1
       TabStop = False
-      ExplicitLeft = 71
-      ExplicitTop = 1
-      ExplicitHeight = 39
     end
     object btPesquisar: TButton
-      Left = 210
+      Left = 565
       Top = 0
       Width = 70
       Height = 41
-      Align = alLeft
+      Align = alRight
       Caption = 'Pesquisar'
       TabOrder = 3
       TabStop = False
-      ExplicitLeft = 211
-      ExplicitTop = 1
-      ExplicitHeight = 39
+      ExplicitLeft = 210
     end
   end
   object pnCampos: TPanel

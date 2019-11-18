@@ -1,0 +1,141 @@
+unit _Produto;
+
+interface
+
+uses
+  SysUtils, _DB, SqlExPr, Forms, _LimiteCredito;
+
+Type
+  WebProdutos = record
+    produto_id: Integer;
+    nome: string;
+    preco_venda: Double;
+  end;
+  TArrayOfWebProdutos = array of WebProdutos;
+
+function BuscarProdutos(con: TSqlConnection; comando: string): TArrayOfWebProdutos;
+procedure AtualizarProduto(con: TSqlConnection; produto: WebProdutos);
+procedure ExcluirProduto(con: TSqlConnection; produto_id: Integer);
+
+implementation
+
+procedure ExcluirProduto(con: TSqlConnection; produto_id: Integer);
+var
+  pesq: TSqlQuery;
+begin
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  sum(QTD) as QTD');
+  pesq.SQL.Add('from (');
+  pesq.SQL.Add('  select');
+  pesq.SQL.Add('    count(*) as QTD');
+  pesq.SQL.Add('  from');
+  pesq.SQL.Add('    LIMITE_CREDITOS');
+  pesq.SQL.Add('  where PRODUTO_ID = ' + QuotedStr(IntToStr(produto_id)) + '');
+  pesq.SQL.Add('  or DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(produto_id)) + '');
+
+  pesq.SQL.Add('  union all ');
+
+  pesq.SQL.Add('  select');
+  pesq.SQL.Add('    count(*) as QTD');
+  pesq.SQL.Add('  from');
+  pesq.SQL.Add('    NEGOCIACOES');
+  pesq.SQL.Add('  where PRODUTO_ID = ' + QuotedStr(IntToStr(produto_id)) + '');
+  pesq.SQL.Add('  or DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(produto_id)) + '');
+  pesq.SQL.Add(')');
+
+  pesq.Open;
+
+  if pesq.FieldByName('QTD').AsInteger > 0 then begin
+    Application.MessageBox(Pchar('O produto não pode ser excluido, pois existe registros que estão utilizando!'), 'Atenção', 0);
+    Abort;
+  end;
+
+  pesq.SQL.Clear;
+  pesq.SQL.Add('delete from PRODUTOS where PRODUTO_ID = ' + QuotedStr(IntToStr(produto_id)) + '');
+  pesq.ExecSQL;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+procedure AtualizarProduto(con: TSqlConnection; produto: WebProdutos);
+var
+  pesq: TSqlQuery;
+begin
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  if produto.produto_id = 0 then begin
+    pesq.SQL.Add('select gen_id(SEQ_PRODUTOS, 1) as ID from rdb$database');
+    pesq.Open;
+    produto.produto_id := pesq.FieldByName('ID').AsInteger;
+
+    pesq.Close;
+    pesq.SQL.Clear;
+
+    pesq.SQL.Add('insert into PRODUTOS (');
+    pesq.SQL.Add('  PRODUTO_ID,');
+    pesq.SQL.Add('  NOME,');
+    pesq.SQL.Add('  PRECO_VENDA');
+    pesq.SQL.Add(') values (');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(produto.produto_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(produto.nome) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(CurrToStr(produto.preco_venda)));
+    pesq.SQL.Add(')');
+  end
+  else begin
+    pesq.SQL.Add('update PRODUTOS set');
+    pesq.SQL.Add('  NOME = ' + QuotedStr(produto.nome) + ',');
+    pesq.SQL.Add('  PRECO_VENDA = ' + QuotedStr(CurrToStr(produto.preco_venda)) + '');
+    pesq.SQL.Add('where PRODUTO_ID = ' + QuotedStr(IntToStr(produto.produto_id)));
+  end;
+
+  pesq.ExecSQL;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+function BuscarProdutos(con: TSqlConnection; comando: string): TArrayOfWebProdutos;
+var
+  pesq: TSqlQuery;
+begin
+  Result := nil;
+
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  PRODUTO_ID,');
+  pesq.SQL.Add('  NOME,');
+  pesq.SQL.Add('  PRECO_VENDA');
+  pesq.SQL.Add('from');
+  pesq.SQL.Add('  PRODUTOS');
+
+  pesq.SQL.Add('where 1 = 1');
+
+  pesq.SQL.Add(comando);
+
+  pesq.SQL.Add('order by');
+  pesq.SQL.Add('  PRODUTO_ID');
+
+  pesq.Open;
+
+  while not pesq.Eof do begin
+    SetLength(Result, Length(Result) + 1);
+
+    Result[High(Result)].produto_id := pesq.FieldByName('PRODUTO_ID').AsInteger;
+    Result[High(Result)].nome := pesq.FieldByName('NOME').AsString;
+    Result[High(Result)].preco_venda := pesq.FieldByName('PRECO_VENDA').AsCurrency;
+
+    pesq.Next;
+  end;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+end.
