@@ -25,7 +25,7 @@ begin
   Result := False;
   cpf_cnpj := Numeros(cpf_cnpj);
 
-  // Caso o número não seja 11 (CPF) ou 14 (CNPJ), aborta
+  // Caso o nï¿½mero nï¿½o seja 11 (CPF) ou 14 (CNPJ), aborta
   Case Length(cpf_cnpj) of
     11: cnpj := False;
     14: cnpj := True;
@@ -33,7 +33,7 @@ begin
     Exit;
   end;
 
-  // Separa o número do digito
+  // Separa o nï¿½mero do digito
   dig_verif_calc := '';
   dig_verif_info := Copy(cpf_cnpj, Length(cpf_cnpj) - 1, 2);
   cpf_cnpj := Copy(cpf_cnpj, 1, Length(cpf_cnpj) - 2);

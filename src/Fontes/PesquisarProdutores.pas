@@ -77,7 +77,7 @@ begin
   produtores := _Produtor.BuscarProdutores(con, comando);
 
   if produtores = nil then begin
-    Application.MessageBox('Nenhum dado encontrado!', 'Atenção!', 0);
+    Application.MessageBox('Nenhum dado encontrado!', 'Atenï¿½ï¿½o!', 0);
     Abort;
   end;
 
@@ -100,11 +100,11 @@ end;
 procedure TFrPesquisarProdutores.FormShow(Sender: TObject);
 begin
   cbFiltros.Items.Clear;
-  cbFiltros.Items.Add('Código');
+  cbFiltros.Items.Add('Cï¿½digo');
   cbFiltros.Items.Add('Nome');
   cbFiltros.ItemIndex := 1;
 
-  sgPesquisa.Cells[cCodigo, sgPesquisa.FixedRows -1] := 'Código';
+  sgPesquisa.Cells[cCodigo, sgPesquisa.FixedRows -1] := 'Cï¿½digo';
   sgPesquisa.Cells[cNome, sgPesquisa.FixedRows -1] := 'Nome';
 
   eChave.SetFocus;
