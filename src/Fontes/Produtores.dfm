@@ -132,7 +132,7 @@ inherited FrProdutores: TFrProdutores
       Top = 75
       Width = 618
       Height = 222
-      ColCount = 2
+      ColCount = 3
       DefaultRowHeight = 19
       Enabled = False
       FixedCols = 0

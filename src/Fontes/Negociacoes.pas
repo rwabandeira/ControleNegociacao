@@ -248,8 +248,8 @@ end;
 procedure TFrNegociacoes.eQuantidadeKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  preco_venda: Double;
-  quantidade: Double;
+//  preco_venda: Double;
+//  quantidade: Double;
   linha: Integer;
 begin
   if Key <> VK_RETURN then
@@ -264,16 +264,15 @@ begin
 
   sgItens.RowCount := IIf(linha <> sgItens.RowCount -1, linha, sgItens.RowCount);
 
-  preco_venda := StrToFloat(ePrecoVenda.Text);
-  quantidade := StrToFloat(eQuantidade.Text);
-  total_geral := total_geral + (preco_venda * quantidade);
+//  preco_venda := StrToFloat(ePrecoVenda.Text);
+//  quantidade := StrToFloat(eQuantidade.Text);
+  total_geral := total_geral + StrToFloat(eTotal.Text);
 
   eProdutoId.Clear;
   eNomeProduto.Clear;
   ePrecoVenda.Clear;
   eQuantidade.Clear;
-  eTotal.Clear
-
+  eTotal.Clear;
 end;
 
 end.

@@ -126,7 +126,7 @@ begin
 
     try
       _Produtor.ExcluirProdutor(con, StrToInt(eCodigo.Text));
-      Application.MessageBox('Registro excluido com sucesso!', 'Aten��o', 0);
+      Application.MessageBox('Registro excluido com sucesso!', 'Atenção', 0);
       btCancelarClick(Self);
     except on e: Exception do
       ShowMessage(e.Message);
@@ -172,7 +172,7 @@ begin
 
   try
     _Produtor.AtualizarProdutor(con, produtor);
-    Application.MessageBox(Pchar('Produtor atualizado com sucesso!'), 'Aten��o', 0);
+    Application.MessageBox(Pchar('Produtor atualizado com sucesso!'), 'Atenção', 0);
     btCancelarClick(Self);
   except on e: Exception do
     ShowMessage(e.Message);
@@ -192,7 +192,7 @@ begin
 
   if form._cancelou then begin
     form.limite_creditos := nil;
-    Application.MessageBox('Opera��o cancelada', 'Aten��o', 0);
+    Application.MessageBox('Operação cancelada', 'Atenção', 0);
   end;
 
   limite_creditos := form.limite_creditos;
@@ -258,7 +258,7 @@ begin
       produtores := _Produtor.BuscarProdutores(con, 'and PRODUTOR_ID = ' + eCodigo.Text);
 
       if produtores = nil then begin
-        Application.MessageBox('Produtor n�o encontrado!!', 'Aten��o', 0);
+        Application.MessageBox('Produtor não encontrado!!', 'Atenção', 0);
         Abort;
       end;
 
@@ -279,9 +279,9 @@ end;
 procedure TFrProdutores.FormShow(Sender: TObject);
 begin
   inherited;
-  sgLimiteCredito.Cells[cDistribuidor_Id, sgLimiteCredito.FixedRows -1] := 'C�digo';
+  sgLimiteCredito.Cells[cDistribuidor_Id, sgLimiteCredito.FixedRows -1] := 'Código';
   sgLimiteCredito.Cells[cNome, sgLimiteCredito.FixedRows -1] := 'Distribuidor';
-  sgLimiteCredito.Cells[cLimite_Credito, sgLimiteCredito.FixedRows -1] := 'Limite de cr�dito';
+  sgLimiteCredito.Cells[cLimite_Credito, sgLimiteCredito.FixedRows -1] := 'Limite de crédito';
 end;
 
 procedure TFrProdutores.MontarDados(produtores: TArrayOfWebProdutor);
@@ -350,7 +350,7 @@ end;
 procedure TFrProdutores.VerificarDados;
 begin
   if not _Biblioteca.ValidarCpfCnpj(meCpfCnpj.Text) then begin
-    MessageDlg('CPF ou CNPJ inv�lido!', mtInformation, mbOKCancel, 0);
+    MessageDlg('CPF ou CNPJ inválido!', mtInformation, mbOKCancel, 0);
     meCpfCnpj.SetFocus;
     Abort;
   end;
