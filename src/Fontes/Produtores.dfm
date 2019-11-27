@@ -6,7 +6,6 @@ inherited FrProdutores: TFrProdutores
   ClientWidth = 631
   Position = poMainFormCenter
   OnCreate = FormCreate
-  OnShow = FormShow
   ExplicitWidth = 637
   ExplicitHeight = 405
   PixelsPerInch = 96
@@ -17,32 +16,20 @@ inherited FrProdutores: TFrProdutores
     inherited btGravar: TButton
       Caption = '&Gravar'
       OnClick = btGravarClick
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitHeight = 41
     end
     inherited btCancelar: TButton
       Caption = '&Cancelar'
       OnClick = btCancelarClick
-      ExplicitLeft = 140
-      ExplicitTop = 0
-      ExplicitHeight = 41
     end
     inherited btExcluir: TButton
       Caption = '&Excluir'
       OnClick = btExcluirClick
-      ExplicitLeft = 70
-      ExplicitTop = 0
-      ExplicitHeight = 41
     end
     inherited btPesquisar: TButton
       Left = 561
-      Align = alRight
       Caption = '&Pesquisar'
       OnClick = btPesquisarClick
       ExplicitLeft = 561
-      ExplicitTop = 0
-      ExplicitHeight = 41
     end
   end
   inherited pnCampos: TPanel

@@ -1,4 +1,4 @@
-unit _Biblioteca;
+﻿unit _Biblioteca;
 
 interface
 

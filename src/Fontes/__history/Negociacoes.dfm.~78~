@@ -154,6 +154,8 @@ object FrNegociacoes: TFrNegociacoes
     RowCount = 2
     Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRowSelect]
     TabOrder = 14
+    OnDrawCell = sgItensDrawCell
+    OnGetEditText = sgItensGetEditText
     ColWidths = (
       79
       360

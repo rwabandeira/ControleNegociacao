@@ -34,6 +34,8 @@ type
     btPesqProduto: TButton;
     eDataCadastro: TEdit;
     eTotalGeral: TEdit;
+    stTitStatus: TStaticText;
+    stStatus: TStaticText;
     procedure btPesqProdutorClick(Sender: TObject);
     procedure btPesqDistribuidorClick(Sender: TObject);
     procedure btPesqProdutoClick(Sender: TObject);
@@ -49,6 +51,7 @@ type
     procedure eQuantidadeKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure eQuantidadeChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
     total_geral: Double;
@@ -151,6 +154,8 @@ begin
     eNomeDistribuidor.Text := distribuidores[0].nome;
   end;
 
+  stStatus.Caption := 'Pendente';
+
   if (eProdutorId.Text <> '') and (eDistribuidorId.Text <> '') then begin
     eDataCadastro.Text := DateToStr(Trunc(Now));
     eProdutorId.Enabled := False;
@@ -243,7 +248,6 @@ begin
   preco_venda := StrToFloat(ePrecoVenda.Text);
   quantidade := StrToFloat(eQuantidade.Text);
   eTotal.Text := FloatToStr(preco_venda * quantidade);
-  total_geral := total_geral + (preco_venda * quantidade);
 end;
 
 procedure TFrNegociacoes.eQuantidadeKeyDown(Sender: TObject; var Key: Word;
@@ -261,13 +265,29 @@ begin
   sgItens.Cells[cQuantidade, linha] := eQuantidade.Text;
   sgItens.Cells[cTotal, linha] := eTotal.Text;
 
-  sgItens.RowCount := IIf(linha <> sgItens.RowCount -1, linha, sgItens.RowCount);
+  Inc(linha);
+
+  sgItens.RowCount := IIf(linha <> sgItens.RowCount -1, linha + 1, sgItens.RowCount);
+
+  total_geral := total_geral + StrToFloat(eTotal.Text);
 
   eProdutoId.Clear;
   eNomeProduto.Clear;
   ePrecoVenda.Clear;
   eQuantidade.Clear;
-  eTotal.Clear
+  eTotal.Clear;
+
+  eProdutoId.SetFocus;
 end;
 
-end.
+procedure TfrNegociacoes.FormCreate(Sender: TObject);
+begin
+  inherited;
+  sgItens.Cells[cProduto_Id, sgItens.FixedRows -1] := 'Código';
+  sgItens.Cells[cNome, sgItens.FixedRows -1] := 'Produto';
+  sgItens.Cells[cPreco_Venda, sgItens.FixedRows -1] := 'Preço venda';
+  sgItens.Cells[cQuantidade, sgItens.FixedRows -1] := 'Quantidade';
+  sgItens.Cells[cTotal, sgItens.FixedRows -1] := 'Total';
+end;
+
+

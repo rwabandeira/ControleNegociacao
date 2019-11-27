@@ -1,4 +1,4 @@
-unit Produtores;
+﻿unit Produtores;
 
 interface
 
@@ -29,7 +29,6 @@ type
     procedure eCodigoKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure rgInscricaoClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btInserirClick(Sender: TObject);
     procedure btRemoverClick(Sender: TObject);
@@ -208,7 +207,7 @@ begin
     sgLimiteCredito.Cells[cNome, linha] := limite_creditos[i].nome_distribuidor;
     sgLimiteCredito.Cells[cLimite_Credito, linha] := FloatToStr(limite_creditos[i].limite_credito);
 
-    linha := linha + 1;
+    Inc(linha);
 
     sgLimiteCredito.RowCount := linha +1;
   end;
@@ -274,11 +273,6 @@ begin
   inherited;
   novo_registro := True;
   limite_creditos := nil;
-end;
-
-procedure TFrProdutores.FormShow(Sender: TObject);
-begin
-  inherited;
   sgLimiteCredito.Cells[cDistribuidor_Id, sgLimiteCredito.FixedRows -1] := 'Código';
   sgLimiteCredito.Cells[cNome, sgLimiteCredito.FixedRows -1] := 'Distribuidor';
   sgLimiteCredito.Cells[cLimite_Credito, sgLimiteCredito.FixedRows -1] := 'Limite de crédito';

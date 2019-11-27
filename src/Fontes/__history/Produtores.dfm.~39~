@@ -5,13 +5,15 @@ inherited FrProdutores: TFrProdutores
   ClientHeight = 376
   ClientWidth = 631
   Position = poMainFormCenter
+  OnCreate = FormCreate
+  OnShow = FormShow
   ExplicitWidth = 637
   ExplicitHeight = 405
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnBotoes: TPanel
     Width = 631
-    ExplicitWidth = 402
+    ExplicitWidth = 631
     inherited btGravar: TButton
       Caption = '&Gravar'
       OnClick = btGravarClick
@@ -38,7 +40,7 @@ inherited FrProdutores: TFrProdutores
       Align = alRight
       Caption = '&Pesquisar'
       OnClick = btPesquisarClick
-      ExplicitLeft = 332
+      ExplicitLeft = 561
       ExplicitTop = 0
       ExplicitHeight = 41
     end
@@ -46,8 +48,8 @@ inherited FrProdutores: TFrProdutores
   inherited pnCampos: TPanel
     Width = 631
     Height = 335
-    ExplicitWidth = 402
-    ExplicitHeight = 351
+    ExplicitWidth = 631
+    ExplicitHeight = 335
     object lbCodigo: TLabel
       Left = 6
       Top = 6
@@ -125,33 +127,36 @@ inherited FrProdutores: TFrProdutores
       TabOrder = 4
       Transparent = False
     end
-    object sgPesquisa: TStringGrid
+    object sgLimiteCredito: TStringGrid
       Left = 6
       Top = 75
       Width = 618
       Height = 222
       ColCount = 3
       DefaultRowHeight = 19
+      Enabled = False
       FixedCols = 0
       RowCount = 2
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRowSelect]
       TabOrder = 5
       ColWidths = (
-        94
-        282
-        208)
+        79
+        360
+        140)
       RowHeights = (
         19
         19)
     end
-    object btIncluir: TButton
+    object btInserir: TButton
       Left = 372
       Top = 303
       Width = 80
       Height = 26
-      Caption = '&Incluir'
+      Caption = '&Inserir'
+      Enabled = False
       TabOrder = 6
       TabStop = False
+      OnClick = btInserirClick
     end
     object btAlterar: TButton
       Left = 458
@@ -159,6 +164,7 @@ inherited FrProdutores: TFrProdutores
       Width = 80
       Height = 26
       Caption = '&Alterar'
+      Enabled = False
       TabOrder = 7
       TabStop = False
     end
@@ -168,8 +174,10 @@ inherited FrProdutores: TFrProdutores
       Width = 80
       Height = 26
       Caption = '&Remover'
+      Enabled = False
       TabOrder = 8
       TabStop = False
+      OnClick = btRemoverClick
     end
   end
 end

@@ -34,6 +34,8 @@ type
     btPesqProduto: TButton;
     eDataCadastro: TEdit;
     eTotalGeral: TEdit;
+    stTitStatus: TStaticText;
+    stStatus: TStaticText;
     procedure btPesqProdutorClick(Sender: TObject);
     procedure btPesqDistribuidorClick(Sender: TObject);
     procedure btPesqProdutoClick(Sender: TObject);
@@ -49,6 +51,9 @@ type
     procedure eQuantidadeKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure eQuantidadeChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure sgItensDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect;
+      State: TGridDrawState);
   private
     { Private declarations }
     total_geral: Double;
@@ -150,6 +155,8 @@ begin
     eDistribuidorId.Text := IntToStr(distribuidores[0].distribuidor_id);
     eNomeDistribuidor.Text := distribuidores[0].nome;
   end;
+
+  stStatus.Caption := 'Pendente';
 
   if (eProdutorId.Text <> '') and (eDistribuidorId.Text <> '') then begin
     eDataCadastro.Text := DateToStr(Trunc(Now));
@@ -260,13 +267,54 @@ begin
   sgItens.Cells[cQuantidade, linha] := eQuantidade.Text;
   sgItens.Cells[cTotal, linha] := eTotal.Text;
 
-  sgItens.RowCount := IIf(linha <> sgItens.RowCount -1, linha, sgItens.RowCount);
+  Inc(linha);
+
+  sgItens.RowCount := IIf(linha <> sgItens.RowCount -1, linha + 1, sgItens.RowCount);
+
+  total_geral := total_geral + StrToFloat(eTotal.Text);
 
   eProdutoId.Clear;
   eNomeProduto.Clear;
   ePrecoVenda.Clear;
   eQuantidade.Clear;
-  eTotal.Clear
+  eTotal.Clear;
+
+  eProdutoId.SetFocus;
+end;
+
+procedure TfrNegociacoes.FormCreate(Sender: TObject);
+begin
+  inherited;
+  sgItens.Cells[cProduto_Id, sgItens.FixedRows -1] := 'Código';
+  sgItens.Cells[cNome, sgItens.FixedRows -1] := 'Produto';
+  sgItens.Cells[cPreco_Venda, sgItens.FixedRows -1] := 'Preço venda';
+  sgItens.Cells[cQuantidade, sgItens.FixedRows -1] := 'Quantidade';
+  sgItens.Cells[cTotal, sgItens.FixedRows -1] := 'Total';
+end;
+
+procedure TfrNegociacoes.sgItensDrawCell(Sender: TObject; ACol, ARow: Integer;
+  Rect: TRect; State: TGridDrawState);
+Var
+  Formato: integer;
+  TempString: TStringGrid;
+Const
+  FmtCentered = DT_SingleLine OR DT_VCenter OR DT_NoClip OR DT_Center;
+  FmtLeft = DT_SingleLine OR DT_VCenter OR DT_NoClip OR DT_Left;
+  FmtRight = DT_SingleLine OR DT_VCenter OR DT_NoClip OR DT_Right;
+
+begin
+  With sgItens, Canvas Do begin
+    Formato := 0;
+    IF ARow = 0 then Exit;
+
+    IF ACol IN [2, 3, 4, 5] then Formato := FmtLeft;
+    IF ACol IN [1] then Formato := FmtCentered;
+
+    FillRect( Rect );
+    Rect.Right := Rect.Right - 3;
+    StrPCopy( @( TempString[0] ), Cells[ACol, ARow] );
+    DrawText( Handle, TempString, - 1, Rect, Formato );
+  end;
 end;
 
 end.

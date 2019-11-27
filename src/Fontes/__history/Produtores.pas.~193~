@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, CrudCadastro, StdCtrls, Buttons, ExtCtrls, Mask, SqlExPr,
   PesquisarProdutores, _Produtor, UITypes, _Biblioteca, Grids, _LimiteCredito,
-  PesquisarDistribuidores;
+  PesquisarDistribuidores, LimiteCreditos;
 
 type
   TFrProdutores = class(TFrCrudCadastro)
@@ -32,9 +32,10 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btInserirClick(Sender: TObject);
+    procedure btRemoverClick(Sender: TObject);
   private
     { Private declarations }
-    limite_creditos: TArrayOfWebLimiteCredito;
+    limite_creditos: TArrayOfWebLimiteCreditos;
     novo_registro: Boolean;
     produtores: TArrayOfWebProdutor;
     procedure MontarDados(produtores: TArrayOfWebProdutor);
@@ -46,10 +47,9 @@ type
 
 const
   //sgLimiteCredito
-  cDistribuidor     = 0;
-  cLimite_Credito   = 1;
-  //sgLimiteCredito(ocultas)
-  cDistribuidor_Id  = 2;
+  cDistribuidor_Id  = 0;
+  cNome             = 1;
+  cLimite_Credito   = 2;
 
 var
   FrProdutores: TFrProdutores;
@@ -69,10 +69,9 @@ begin
   sgLimiteCredito.RowCount := sgLimiteCredito.FixedRows + 1;
 
   for i := Low(limite_creditos) to High(limite_creditos) do begin
-    sgLimiteCredito.Cells[cDistribuidor, linha] := IntToStr(limite_creditos[i].distribuidor_id) + limite_creditos[i].nome_distribuidor;
-    sgLimiteCredito.Cells[cLimite_Credito, linha] := FloatToStr(limite_creditos[i].limite_credito);
-
     sgLimiteCredito.Cells[cDistribuidor_Id, linha] := IntToStr(limite_creditos[i].distribuidor_id);
+    sgLimiteCredito.Cells[cNome, linha] := limite_creditos[i].nome_distribuidor;
+    sgLimiteCredito.Cells[cLimite_Credito, linha] := FloatToStr(limite_creditos[i].limite_credito);
 
     linha := linha + 1;
   end;
@@ -81,6 +80,8 @@ begin
 end;
 
 procedure TFrProdutores.btCancelarClick(Sender: TObject);
+var
+  i: Integer;
 begin
   inherited;
   eCodigo.Clear;
@@ -90,6 +91,11 @@ begin
   meCpfCnpj.Clear;
   meCpfCnpj.EditMask := '';
   sgLimiteCredito.RowCount := sgLimiteCredito.FixedRows + 1;
+
+  for i := 0 to sgLimiteCredito.ColCount -1 do begin
+    sgLimiteCredito.Cells[i, sgLimiteCredito.FixedRows] := '';
+  end;
+
   sgLimiteCredito.Row := sgLimiteCredito.FixedRows;
 
   eCodigo.Enabled := True;
@@ -120,7 +126,7 @@ begin
 
     try
       _Produtor.ExcluirProdutor(con, StrToInt(eCodigo.Text));
-      Application.MessageBox('Registro excluido com sucesso!', 'AtenÁ„o', 0);
+      Application.MessageBox('Registro excluido com sucesso!', 'Aten√ß√£o', 0);
       btCancelarClick(Self);
     except on e: Exception do
       ShowMessage(e.Message);
@@ -155,14 +161,18 @@ begin
 
   produtor.limite_creditos := nil;
   for i := sgLimiteCredito.FixedRows to sgLimiteCredito.RowCount -1 do begin
+    if sgLimiteCredito.Cells[cDistribuidor_Id, i] = '' then
+      Break;
+
     SetLength(produtor.limite_creditos, Length(produtor.limite_creditos) + 1);
+    produtor.limite_creditos[High(produtor.limite_creditos)].produtor_id := StrToInt(eCodigo.Text);
     produtor.limite_creditos[High(produtor.limite_creditos)].distribuidor_id := StrToInt(sgLimiteCredito.Cells[cDistribuidor_Id, i]);
     produtor.limite_creditos[High(produtor.limite_creditos)].limite_credito := StrToInt(sgLimiteCredito.Cells[cLimite_Credito, i]);
   end;
 
   try
     _Produtor.AtualizarProdutor(con, produtor);
-    Application.MessageBox(Pchar('Produtor atualizado com sucesso!'), 'AtenÁ„o', 0);
+    Application.MessageBox(Pchar('Produtor atualizado com sucesso!'), 'Aten√ß√£o', 0);
     btCancelarClick(Self);
   except on e: Exception do
     ShowMessage(e.Message);
@@ -171,52 +181,36 @@ end;
 
 procedure TFrProdutores.btInserirClick(Sender: TObject);
 var
-  limite_creditos: TArrayOfWebLimiteCredito;
-  frmPesquisa: TFrPesquisarDistribuidores;
+  limite_creditos: TArrayOfWebLimiteCreditos;
+  form: TFrLimiteCreditos;
   linha: Integer;
   i: Integer;
-  posicao: Integer;
 begin
   inherited;
-  frmPesquisa := TFrPesquisarDistribuidores.Create(Self);
-  frmPesquisa.ShowModal;
+  form := TFrLimiteCreditos.Create(Self);
+  form.ShowModal;
 
-  limite_creditos := nil;
-
-  if frmPesquisa.distribuidor.distribuidor_id > 0 then begin
-    SetLength(limite_creditos, 1);
-    limite_creditos[0].distribuidor_id := frmPesquisa.distribuidor.distribuidor_id;
-    limite_creditos[0].nome_distribuidor := frmPesquisa.distribuidor.nome;
+  if form._cancelou then begin
+    form.limite_creditos := nil;
+    Application.MessageBox('Opera√ß√£o cancelada', 'Aten√ß√£o', 0);
   end;
 
-  FreeAndNil(frmPesquisa);
+  limite_creditos := form.limite_creditos;
+
+  FreeAndNil(form);
 
   if limite_creditos = nil then
     Exit;
 
-  posicao := -1;
-  for i := sgLimiteCredito.FixedRows to sgLimiteCredito.RowCount -1 do  begin
-    if limite_creditos[0].distribuidor_id <> StrToIntDef(sgLimiteCredito.Cells[cDistribuidor_Id, i], 0) then
-      Continue;
-
-    posicao := i;
-    Break;
-  end;
-
-  if posicao <> -1 then begin
-    Application.MessageBox('Distribuidor j· incluÌdo', 'AtenÁ„o', 0);
-    sgLimiteCredito.Row := posicao;
-    Exit;
-  end;
-
-  if limite_creditos <> nil then begin
+  for i := Low(limite_creditos) to High(limite_creditos) do begin
     linha := sgLimiteCredito.RowCount -1;
-    sgLimiteCredito.Cells[cDistribuidor, linha] := IntToStr(limite_creditos[0].distribuidor_id) + ' - ' + limite_creditos[0].nome_distribuidor;
-    sgLimiteCredito.Cells[cLimite_Credito, linha] := FloatToStr(limite_creditos[0].limite_credito);
+    sgLimiteCredito.Cells[cDistribuidor_Id, linha] := IntToStr(limite_creditos[i].distribuidor_id);
+    sgLimiteCredito.Cells[cNome, linha] := limite_creditos[i].nome_distribuidor;
+    sgLimiteCredito.Cells[cLimite_Credito, linha] := FloatToStr(limite_creditos[i].limite_credito);
 
     linha := linha + 1;
 
-    sgLimiteCredito.RowCount := linha;
+    sgLimiteCredito.RowCount := linha +1;
   end;
 end;
 
@@ -244,6 +238,12 @@ begin
     MontarDados(produtores);
 end;
 
+procedure TFrProdutores.btRemoverClick(Sender: TObject);
+begin
+  inherited;
+  _Biblioteca.RemoverLinhaGrid(sgLimiteCredito, sgLimiteCredito.Row);
+end;
+
 procedure TFrProdutores.eCodigoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
@@ -258,7 +258,7 @@ begin
       produtores := _Produtor.BuscarProdutores(con, 'and PRODUTOR_ID = ' + eCodigo.Text);
 
       if produtores = nil then begin
-        Application.MessageBox('Produtor n„o encontrado!!', 'AtenÁ„o', 0);
+        Application.MessageBox('Produtor n√£o encontrado!!', 'Aten√ß√£o', 0);
         Abort;
       end;
 
@@ -279,8 +279,9 @@ end;
 procedure TFrProdutores.FormShow(Sender: TObject);
 begin
   inherited;
-  sgLimiteCredito.Cells[cDistribuidor, sgLimiteCredito.FixedRows -1] := 'Distribuidor';
-  sgLimiteCredito.Cells[cLimite_Credito, sgLimiteCredito.FixedRows -1] := 'Limite de crÈdito';
+  sgLimiteCredito.Cells[cDistribuidor_Id, sgLimiteCredito.FixedRows -1] := 'C√≥digo';
+  sgLimiteCredito.Cells[cNome, sgLimiteCredito.FixedRows -1] := 'Distribuidor';
+  sgLimiteCredito.Cells[cLimite_Credito, sgLimiteCredito.FixedRows -1] := 'Limite de cr√©dito';
 end;
 
 procedure TFrProdutores.MontarDados(produtores: TArrayOfWebProdutor);
@@ -349,7 +350,7 @@ end;
 procedure TFrProdutores.VerificarDados;
 begin
   if not _Biblioteca.ValidarCpfCnpj(meCpfCnpj.Text) then begin
-    MessageDlg('CPF ou CNPJ inv·lido!', mtInformation, mbOKCancel, 0);
+    MessageDlg('CPF ou CNPJ inv√°lido!', mtInformation, mbOKCancel, 0);
     meCpfCnpj.SetFocus;
     Abort;
   end;
