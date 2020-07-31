@@ -1,0 +1,15 @@
+inherited frPesquisaTeste: TfrPesquisaTeste
+  Caption = 'Pesquisa de Teste'
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited sgPesquisa: TStringGrid
+    ColCount = 3
+    OnDblClick = sgPesquisaDblClick
+    OnDrawCell = sgPesquisaDrawCell
+    OnKeyDown = sgPesquisaKeyDown
+    ColWidths = (
+      188
+      397
+      64)
+  end
+end

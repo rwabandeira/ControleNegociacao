@@ -3,17 +3,44 @@
 interface
 
 uses
-  SysUtils, Grids;
+  SysUtils, Grids, StrUtils;
 
+//Functions
+function AllTrim(s:string):string;
 function ValidarCpfCnpj(cpf_cnpj: string): Boolean;
 function Numeros(valor: string): string;
 function IIf(condicao:Boolean; verdadeiro, falso: Variant): Variant;
 function FormatarCPFCNPJ(valor: string): string;
+function NPadrao(n: Double; decimais: Integer = 2): string;
+function NPadraoStr(n: string; decimais: Integer = 2):string;
+function Valor(s: string): variant; overload;
+function ValorInt(s:string):Integer;
+function RetirarPontos(s: string): string;
+function RetirarCaracter(s:string;c:char):string;
+function Decode(Base:variant;Possibilidades:array of variant):variant;
+function DecodeInt(Base:Integer;Possibilidades:array of variant):Integer;
+function ToNumber(vlr: Double):string;
+function PrimeiraLetraMaiscula(str: string): string;
+function FData(Data: TDateTime):string; overload;
+function Espacos(Qtd:Integer):string;
 
+//Procedures
+procedure LimpaGrid(grid: TStringGrid);
 procedure RemoverLinhaGrid(grid: TStringGrid; linha: Integer);
-function TrocaVirgulaPorPonto(AString: string): String;
 
 implementation
+
+//Functions
+function  AllTrim(s:string):string;
+var
+  i:Integer;
+begin
+  Result := '';
+  for i := 1 to Length(s) do begin
+    if s[i]<>' ' then
+      Result:=Result + s[i];
+  end;
+end;
 
 function ValidarCpfCnpj(cpf_cnpj : string): Boolean;
 Var
@@ -99,6 +126,175 @@ begin
   end;
 end;
 
+function  NPadrao(n: Double; decimais: Integer = 2): string;
+begin
+  if Decimais = 0 then
+    Result := FormatFloat('#,##0', n)
+  else if Decimais = 1 then
+    Result := FormatFloat('#,##0.0', n)
+  else if Decimais = 2 then
+    Result := FormatFloat('#,##0.00', n)
+  else if Decimais = 3 then
+    Result := FormatFloat('#,##0.000', n)
+  else if Decimais = 4 then
+    Result := FormatFloat('#,##0.0000', n)
+  else if Decimais = 5 then
+    Result := FormatFloat('#,##0.00000', n)
+  else if Decimais = 6 then
+    Result := FormatFloat('#,##0.000000', n)
+  else if Decimais = 7 then
+    Result := FormatFloat('#,##0.0000000', n)
+  else if Decimais = 8 then
+    Result := FormatFloat('#,##0.00000000', n)
+  else
+    Result := FormatFloat('#,##0.00', n);
+end;
+
+function NPadraoStr(n:string;Decimais:Integer = 2):string;
+var
+  x: Double;
+begin
+  x := Valor(n);
+  Result := NPadrao(x,decimais);
+end;
+
+function Valor(s: string):variant; overload;
+begin
+  s := RetirarPontos(AllTrim(s));
+  try
+    Result:=StrToFloat(s);
+  except
+    Result := 0;
+  end;
+end;
+
+function ValorInt(s: string):Integer;
+begin
+  s := RetirarPontos(AllTrim(s));
+  try
+    Result := StrToInt(s);
+  except
+    Result := 0;
+  end;
+end;
+
+function  RetirarPontos(s: string): string;
+begin
+  Result := RetirarCaracter(s, '.');
+end;
+
+function RetirarCaracter(s:string;c:char):string;
+var
+  i:Integer;
+begin
+  Result:='';
+  for i:=1 to Length(s) do begin
+    if s[i] <> c then
+      Result:=Result + s[i];
+  end;
+end;
+
+function Decode(Base:variant;Possibilidades:array of variant):variant;
+var
+  EPar:Boolean;
+  i:Integer;
+  MetadeItens:Integer;
+begin
+  EPar:=( ( High(Possibilidades) + 1 ) mod 2 = 0 );
+  if EPar then
+    Result:=''
+  else
+    Result:=Possibilidades[High(Possibilidades)];
+
+  MetadeItens:=( High(Possibilidades) - 1) div 2;
+
+  for i:=0 to MetadeItens do begin
+    if Base=Possibilidades[i * 2] then begin
+      Result:=Possibilidades[i * 2 + 1];
+      Break;
+    end;
+  end;
+end;
+
+function DecodeInt(Base:Integer;Possibilidades:array of variant):Integer;
+var
+  EPar:Boolean;
+  i:Integer;
+  MetadeItens:Integer;
+begin
+  EPar:=( ( High(Possibilidades) + 1 ) mod 2 = 0 );
+  if EPar then
+    Result:=0
+  else
+    Result:=Possibilidades[High(Possibilidades)];
+
+  MetadeItens:=( High(Possibilidades) - 1) div 2;
+
+  for i:=0 to MetadeItens do begin
+    if Base=Possibilidades[i * 2] then begin
+      Result:=Possibilidades[i * 2 + 1];
+      Break;
+    end;
+  end;
+end;
+
+function  ToNumber(vlr :Double):string;
+begin
+  Result := AnsiReplaceStr(FloatToStr(vlr),',','.');
+end;
+
+function PrimeiraLetraMaiscula(str: string): string;
+var
+  i: integer;
+  esp: boolean;
+begin
+  str := LowerCase(Trim(str));
+
+  for i := 1 to Length(str) do begin
+    if i = 1 then
+      str[i] := UpCase(str[i])
+    else begin
+      if i <> Length(str) then begin
+        esp := (str[i] = ' ');
+
+        if esp then
+          str[i + 1] := UpCase(str[i + 1]);
+      end;
+    end;
+  end;
+
+  Result := Str;
+end;
+
+function FData(Data:TDateTime):string; overload;
+begin
+  if Data = 0 then
+    Result := Espacos(10)
+  else
+    Result := FormatDateTime('DD/MM/YYYY', Data);
+end;
+
+function Espacos(Qtd:Integer):string;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 1 to Qtd do
+    Result := Result + ' ';
+end;
+
+//Procedures
+procedure LimpaGrid(grid: TStringGrid);
+var
+  lin: Integer;
+  col: Integer;
+begin
+  for lin := 1 to grid.RowCount - 1 do begin
+    for col := 0 to grid.ColCount - 1 do
+      grid.Cells[col, lin] := '';
+  end;
+end;
+
 procedure RemoverLinhaGrid(grid: TStringGrid; linha: Integer);
 var
   i: Integer;
@@ -108,23 +304,6 @@ begin
 
   if grid.RowCount >2 then
     grid.RowCount := grid.RowCount - 1;
-end;
-
-function TrocaVirgulaPorPonto(AString: string): String;
-var
-  i : Integer;
-  s : string;
-begin
-  s := '';
-
-  for i := 1 to Length(AString) do begin
-    if  AString[i] = ',' then
-      s := s + '.'
-    else
-      s := s + AString[i];
-  end;
-
-  Result := s;
 end;
 
 end.

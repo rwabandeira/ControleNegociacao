@@ -1,0 +1,30 @@
+﻿unit CrudPesquisar;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, ExtCtrls;
+
+type
+  TFrCrudPesquisar = class(TForm)
+    pnBotoes: TPanel;
+    btGravar: TButton;
+    btCancelar: TButton;
+    btExcluir: TButton;
+    btPesquisar: TButton;
+    pnCampos: TPanel;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrCrudPesquisar: TFrCrudPesquisar;
+
+implementation
+
+{$R *.dfm}
+
+end.

@@ -1,0 +1,50 @@
+unit PesquisaTeste;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CrudPesquisar, Vcl.Grids, Vcl.StdCtrls,
+  Vcl.ExtCtrls;
+
+type
+  TFrPesquisaTeste = class(TFrCrudPesquisar)
+    procedure sgPesquisaDrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+    procedure sgPesquisaDblClick(Sender: TObject);
+    procedure sgPesquisaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrPesquisaTeste: TFrPesquisaTeste;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFrPesquisaTeste.sgPesquisaDblClick(Sender: TObject);
+begin
+  inherited;
+//
+end;
+
+procedure TFrPesquisaTeste.sgPesquisaDrawCell(Sender: TObject; ACol,
+  ARow: Integer; Rect: TRect; State: TGridDrawState);
+begin
+  inherited;
+//
+end;
+
+procedure TFrPesquisaTeste.sgPesquisaKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+//
+end;
+
+end.

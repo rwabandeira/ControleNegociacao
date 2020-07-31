@@ -1,0 +1,18 @@
+inherited FrPesquisarDistribuidores: TFrPesquisarDistribuidores
+  Caption = 'Pesquisa de Distribuidores'
+  OnShow = FormShow
+  ExplicitWidth = 621
+  ExplicitHeight = 352
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnFiltros: TPanel
+    inherited eChave: TEdit
+      OnKeyDown = eChaveKeyDown
+    end
+  end
+  inherited sgPesquisa: TStringGrid
+    OnDblClick = sgPesquisaDblClick
+    OnEnter = sgPesquisaEnter
+    OnKeyDown = sgPesquisaKeyDown
+  end
+end

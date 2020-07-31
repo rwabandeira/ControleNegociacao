@@ -1,0 +1,306 @@
+inherited FrNegociacoes: TFrNegociacoes
+  Caption = 'Negocia'#231#245'es'
+  ClientHeight = 403
+  ClientWidth = 768
+  Position = poMainFormCenter
+  OnCreate = FormCreate
+  ExplicitWidth = 784
+  ExplicitHeight = 442
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnBotoes: TPanel
+    Width = 768
+    ExplicitWidth = 768
+    inherited btGravar: TButton
+      Enabled = False
+      OnClick = btGravarClick
+    end
+    inherited btCancelar: TButton
+      Enabled = False
+      OnClick = btCancelarClick
+    end
+    inherited btExcluir: TButton
+      Enabled = False
+      Visible = False
+    end
+    inherited btPesquisar: TButton
+      Left = 698
+      OnClick = btPesquisarClick
+      ExplicitLeft = 698
+    end
+  end
+  inherited pnCampos: TPanel
+    Width = 768
+    Height = 362
+    ExplicitWidth = 768
+    ExplicitHeight = 362
+    object lbProdutorId: TLabel
+      Left = 8
+      Top = 6
+      Width = 42
+      Height = 13
+      Caption = 'Produtor'
+    end
+    object lbDistribuidorId: TLabel
+      Left = 8
+      Top = 48
+      Width = 54
+      Height = 13
+      Caption = 'Distribuidor'
+    end
+    object lbProduto: TLabel
+      Left = 8
+      Top = 111
+      Width = 38
+      Height = 13
+      Caption = 'Produto'
+    end
+    object lbQuantidade: TLabel
+      Left = 620
+      Top = 111
+      Width = 56
+      Height = 13
+      Caption = 'Quantidade'
+    end
+    object lbPrecoVenda: TLabel
+      Left = 548
+      Top = 111
+      Width = 60
+      Height = 13
+      Caption = 'Pre'#231'o venda'
+    end
+    object lbTotal: TLabel
+      Left = 692
+      Top = 111
+      Width = 24
+      Height = 13
+      Caption = 'Total'
+    end
+    object lbDataCadastro: TLabel
+      Left = 672
+      Top = 6
+      Width = 83
+      Height = 13
+      Caption = 'Data do cadastro'
+    end
+    object lbTotalGeral: TLabel
+      Left = 622
+      Top = 319
+      Width = 51
+      Height = 13
+      Caption = 'Total geral'
+    end
+    object eProdutorId: TEdit
+      Left = 8
+      Top = 21
+      Width = 42
+      Height = 21
+      NumbersOnly = True
+      TabOrder = 0
+      OnChange = eProdutorIdChange
+      OnKeyDown = eProdutorIdKeyDown
+    end
+    object eNomeProdutor: TEdit
+      Left = 51
+      Top = 21
+      Width = 247
+      Height = 21
+      TabStop = False
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object eDistribuidorId: TEdit
+      Left = 8
+      Top = 63
+      Width = 42
+      Height = 21
+      NumbersOnly = True
+      TabOrder = 3
+      OnChange = eDistribuidorIdChange
+      OnKeyDown = eDistribuidorIdKeyDown
+    end
+    object eNomeDistribuidor: TEdit
+      Left = 51
+      Top = 63
+      Width = 247
+      Height = 21
+      TabStop = False
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 4
+    end
+    object btPesqProdutor: TButton
+      Left = 299
+      Top = 19
+      Width = 80
+      Height = 26
+      Caption = 'Pesquisar'
+      TabOrder = 2
+      TabStop = False
+      OnClick = btPesqProdutorClick
+    end
+    object btPesqDistribuidor: TButton
+      Left = 299
+      Top = 61
+      Width = 80
+      Height = 26
+      Caption = 'Pesquisar'
+      TabOrder = 5
+      TabStop = False
+      OnClick = btPesqDistribuidorClick
+    end
+    object stItens: TStaticText
+      Left = 8
+      Top = 90
+      Width = 752
+      Height = 17
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Itens'
+      Color = clSilver
+      ParentColor = False
+      TabOrder = 9
+      Transparent = False
+    end
+    object sgItens: TStringGrid
+      Left = 8
+      Top = 153
+      Width = 752
+      Height = 160
+      DefaultRowHeight = 19
+      Enabled = False
+      FixedCols = 0
+      RowCount = 2
+      Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRowSelect]
+      TabOrder = 16
+      ColWidths = (
+        79
+        360
+        100
+        64
+        64)
+      RowHeights = (
+        19
+        19)
+    end
+    object eProdutoId: TEdit
+      Left = 8
+      Top = 126
+      Width = 42
+      Height = 21
+      Enabled = False
+      NumbersOnly = True
+      TabOrder = 10
+      OnChange = eProdutoIdChange
+      OnKeyDown = eProdutoIdKeyDown
+    end
+    object eNomeProduto: TEdit
+      Left = 51
+      Top = 126
+      Width = 410
+      Height = 21
+      TabStop = False
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 11
+    end
+    object ePrecoVenda: TEdit
+      Left = 548
+      Top = 126
+      Width = 66
+      Height = 21
+      TabStop = False
+      Alignment = taRightJustify
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 13
+    end
+    object eQuantidade: TEdit
+      Left = 620
+      Top = 126
+      Width = 66
+      Height = 21
+      Enabled = False
+      NumbersOnly = True
+      TabOrder = 14
+      OnChange = eQuantidadeChange
+      OnKeyDown = eQuantidadeKeyDown
+    end
+    object eTotal: TEdit
+      Left = 692
+      Top = 126
+      Width = 68
+      Height = 21
+      TabStop = False
+      Alignment = taRightJustify
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 15
+    end
+    object btPesqProduto: TButton
+      Left = 462
+      Top = 124
+      Width = 80
+      Height = 26
+      Caption = '&Pesquisar'
+      Enabled = False
+      TabOrder = 12
+      TabStop = False
+      OnClick = btPesqProdutoClick
+    end
+    object eDataCadastro: TEdit
+      Left = 672
+      Top = 21
+      Width = 88
+      Height = 21
+      TabStop = False
+      Alignment = taCenter
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 6
+    end
+    object eTotalGeral: TEdit
+      Left = 622
+      Top = 334
+      Width = 138
+      Height = 21
+      TabStop = False
+      Alignment = taRightJustify
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 17
+    end
+    object stTitStatus: TStaticText
+      Left = 672
+      Top = 48
+      Width = 88
+      Height = 17
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Status'
+      Color = clTeal
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 7
+      Transparent = False
+    end
+    object stStatus: TStaticText
+      Left = 672
+      Top = 65
+      Width = 88
+      Height = 17
+      Alignment = taCenter
+      AutoSize = False
+      Color = clBtnHighlight
+      ParentColor = False
+      TabOrder = 8
+      Transparent = False
+    end
+  end
+end

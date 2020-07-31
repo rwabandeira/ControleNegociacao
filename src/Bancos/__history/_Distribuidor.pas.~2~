@@ -1,0 +1,147 @@
+unit _Distribuidor;
+
+interface
+
+uses
+  SysUtils, _DB, SqlExPr, Forms;
+
+Type
+  WebDistribuidor = record
+    distribuidor_id: Integer;
+    nome: string;
+    inscricao: string;
+    cpf_cnpj: string;
+  end;
+  TArrayOfWebDistribuidor = array of WebDistribuidor;
+
+function BuscarDistribuidores(con: TSqlConnection; comando: string): TArrayOfWebDistribuidor;
+procedure AtualizarDistribuidor(con: TSqlConnection; distribuidor: WebDistribuidor);
+procedure ExcluirDistribuidor(con: TSqlConnection; distribuidor_id: Integer);
+
+implementation
+
+procedure ExcluirDistribuidor(con: TSqlConnection; distribuidor_id: Integer);
+var
+  pesq: TSqlQuery;
+begin
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  sum(QTD) as QTD');
+  pesq.SQL.Add('from (');
+  pesq.SQL.Add('  select');
+  pesq.SQL.Add('    count(*) as QTD');
+  pesq.SQL.Add('  from');
+  pesq.SQL.Add('    LIMITE_CREDITOS');
+  pesq.SQL.Add('  where DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(distribuidor_id)) + '');
+  pesq.SQL.Add('  or DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(distribuidor_id)) + '');
+
+  pesq.SQL.Add('  union all ');
+
+  pesq.SQL.Add('  select');
+  pesq.SQL.Add('    count(*) as QTD');
+  pesq.SQL.Add('  from');
+  pesq.SQL.Add('    NEGOCIACOES');
+  pesq.SQL.Add('  where DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(distribuidor_id)) + '');
+  pesq.SQL.Add('  or DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(distribuidor_id)) + '');
+  pesq.SQL.Add(')');
+
+  pesq.Open;
+
+  if pesq.FieldByName('QTD').AsInteger > 0 then begin
+    Application.MessageBox(Pchar('O distribuidor não pode ser excluido, pois existe registros que estão utilizando!'), 'Atenção', 0);
+    Abort;
+  end;
+
+  pesq.SQL.Clear;
+  pesq.SQL.Add('delete from DISTRIBUIDORES where DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(distribuidor_id)) + '');
+  pesq.ExecSQL;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+procedure AtualizarDistribuidor(con: TSqlConnection; distribuidor: WebDistribuidor);
+var
+  pesq: TSqlQuery;
+begin
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  if distribuidor.distribuidor_id = 0 then begin
+    pesq.SQL.Add('select gen_id(SEQ_DISTRIBUIDORES, 1) as ID from rdb$database');
+    pesq.Open;
+    distribuidor.distribuidor_id := pesq.FieldByName('ID').AsInteger;
+
+    pesq.Close;
+    pesq.SQL.Clear;
+
+    pesq.SQL.Add('insert into DISTRIBUIDORES (');
+    pesq.SQL.Add('  DISTRIBUIDOR_ID,');
+    pesq.SQL.Add('  NOME,');
+    pesq.SQL.Add('  INSCRICAO,');
+    pesq.SQL.Add('  CPF_CNPJ');
+    pesq.SQL.Add(') values (');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(distribuidor.distribuidor_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(distribuidor.nome) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(distribuidor.inscricao) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(distribuidor.cpf_cnpj) + '');
+    pesq.SQL.Add(')');
+  end
+  else begin
+    pesq.SQL.Add('update DISTRIBUIDORES set');
+    pesq.SQL.Add('  NOME = ' + QuotedStr(distribuidor.nome) + ',');
+    pesq.SQL.Add('  INSCRICAO = ' + QuotedStr(distribuidor.inscricao) + ',');
+    pesq.SQL.Add('  CPF_CNPJ = ' + QuotedStr(distribuidor.cpf_cnpj) + '');
+    pesq.SQL.Add('where DISTRIBUIDOR_ID = ' + QuotedStr(IntToStr(distribuidor.distribuidor_id)) + '');
+  end;
+
+  pesq.ExecSQL;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+function BuscarDistribuidores(con: TSqlConnection; comando: string): TArrayOfWebDistribuidor;
+var
+  pesq: TSqlQuery;
+begin
+  Result := nil;
+
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  DISTRIBUIDOR_ID,');
+  pesq.SQL.Add('  NOME,');
+  pesq.SQL.Add('  INSCRICAO,');
+  pesq.SQL.Add('  CPF_CNPJ');
+  pesq.SQL.Add('from');
+  pesq.SQL.Add('  DISTRIBUIDORES');
+
+  pesq.SQL.Add('where 1 = 1');
+
+  pesq.SQL.Add(comando);
+
+  pesq.SQL.Add('order by');
+  pesq.SQL.Add('  DISTRIBUIDOR_ID');
+
+  pesq.Open;
+
+  while not pesq.Eof do begin
+    SetLength(Result, Length(Result) + 1);
+
+    Result[High(Result)].distribuidor_id := pesq.FieldByName('DISTRIBUIDOR_ID').AsInteger;
+    Result[High(Result)].nome := pesq.FieldByName('NOME').AsString;
+    Result[High(Result)].inscricao := pesq.FieldByName('INSCRICAO').AsString;
+    Result[High(Result)].cpf_cnpj := pesq.FieldByName('CPF_CNPJ').AsString;
+
+    pesq.Next;
+  end;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+end.

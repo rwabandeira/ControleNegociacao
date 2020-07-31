@@ -1,0 +1,64 @@
+unit _DB;
+
+interface
+
+uses
+  SqlExPr;
+
+Conexao = class(TComponent)
+  private
+    senha: string;
+    pesq_datas: TConsulta;
+    proc_set_conexao: Procedimento;
+    conexao_logs_banco: Conexao;
+    id_conexao: integer;
+    proc_adicionar_log: Procedimento;
+    processo_alteracao_base_log: string;
+    funcionario_amarilis_id: string;
+    sistema_banco: TSistemaBanco;
+
+    FDepoisConectar: TNotifyEvent;
+    FPerdeuConexao: TNotifyEvent;
+
+    controle_read_write: TMultiReadExclusiveWriteSynchronizer;
+    conexao_disponivel: Boolean;
+    data_hora_ultima_utilizacao: TDateTime;
+
+    procedure OraSessionAfterConnect(Sender: TObject);
+    procedure OraSessionError(Sender: TObject; E: EDAError; var Fail: Boolean);
+  public
+    con: string;
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  protected
+    conexao: TOraSession;
+  published
+  end;
+
+function Conexao: TSQLConnection;
+
+implementation
+
+function Conexao: TSQLConnection;
+begin
+  Result := TSQLConnection.Create(nil);
+
+  Result.Params.Clear;
+  Result.Connected := False;
+  Result.KeepConnection := False;
+  Result.LoginPrompt := False;
+  Result.ConnectionName := 'FBConnection';
+  Result.DriverName := 'Firebird';
+  Result.Params.Add('VendorLib=fbclient.dll');
+  Result.Params.Add('VendorLibWin64=fbclient.dll');
+  Result.Params.Add('VendorLibOsx=/Library/Frameworks/Firebird.framework/Firebird');
+  Result.Params.Add('Database=127.0.0.1/3050:C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\data\SGR.FDB');
+  Result.Params.Add('User_Name=sysdba');
+  Result.Params.Add('Password=masterkey');
+  Result.Params.Add('DriverName=Firebird');
+
+  Result.Connected := True;
+end;
+
+end.

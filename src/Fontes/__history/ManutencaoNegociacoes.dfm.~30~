@@ -1,0 +1,224 @@
+inherited frManutencaoNegociacoes: TfrManutencaoNegociacoes
+  Caption = 'Manuten'#231#227'o de Negocia'#231#245'es'
+  ClientHeight = 362
+  ClientWidth = 765
+  OnCreate = FormCreate
+  ExplicitWidth = 781
+  ExplicitHeight = 401
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnBotoes: TPanel
+    Width = 765
+    inherited btGravar: TButton
+      Enabled = False
+      Visible = False
+    end
+    inherited btCancelar: TButton
+      Enabled = False
+      Visible = False
+    end
+    inherited btExcluir: TButton
+      Enabled = False
+      Visible = False
+    end
+    inherited btPesquisar: TButton
+      Left = 695
+      OnClick = btPesquisarClick
+    end
+  end
+  inherited pnCampos: TPanel
+    Width = 765
+    Height = 321
+    object lbProdutorId: TLabel
+      Left = 8
+      Top = 6
+      Width = 42
+      Height = 13
+      Caption = 'Produtor'
+    end
+    object lbDistribuidorId: TLabel
+      Left = 8
+      Top = 48
+      Width = 54
+      Height = 13
+      Caption = 'Distribuidor'
+    end
+    object lbDataCadastro: TLabel
+      Left = 672
+      Top = 6
+      Width = 83
+      Height = 13
+      Caption = 'Data do cadastro'
+    end
+    object lbTotalGeral: TLabel
+      Left = 622
+      Top = 275
+      Width = 51
+      Height = 13
+      Caption = 'Total geral'
+    end
+    object eProdutorId: TEdit
+      Left = 8
+      Top = 21
+      Width = 42
+      Height = 21
+      NumbersOnly = True
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object eNomeProdutor: TEdit
+      Left = 51
+      Top = 21
+      Width = 566
+      Height = 21
+      TabStop = False
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 2
+    end
+    object eDistribuidorId: TEdit
+      Left = 8
+      Top = 63
+      Width = 42
+      Height = 21
+      NumbersOnly = True
+      ReadOnly = True
+      TabOrder = 3
+    end
+    object eNomeDistribuidor: TEdit
+      Left = 51
+      Top = 63
+      Width = 566
+      Height = 21
+      TabStop = False
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 4
+    end
+    object stItens: TStaticText
+      Left = 8
+      Top = 90
+      Width = 752
+      Height = 17
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Itens'
+      Color = clSilver
+      ParentColor = False
+      TabOrder = 5
+      Transparent = False
+    end
+    object sgItens: TStringGrid
+      Left = 8
+      Top = 109
+      Width = 752
+      Height = 160
+      DefaultRowHeight = 19
+      FixedCols = 0
+      RowCount = 2
+      Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRowSelect]
+      TabOrder = 6
+      ColWidths = (
+        79
+        360
+        100
+        64
+        64)
+      RowHeights = (
+        19
+        19)
+    end
+    object eDataCadastro: TEdit
+      Left = 672
+      Top = 21
+      Width = 88
+      Height = 21
+      TabStop = False
+      Alignment = taCenter
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 7
+    end
+    object eTotalGeral: TEdit
+      Left = 622
+      Top = 290
+      Width = 138
+      Height = 21
+      TabStop = False
+      Alignment = taRightJustify
+      Color = cl3DLight
+      ReadOnly = True
+      TabOrder = 8
+    end
+    object stTitStatus: TStaticText
+      Left = 672
+      Top = 48
+      Width = 88
+      Height = 17
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Status'
+      Color = clTeal
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 9
+      Transparent = False
+    end
+    object stStatus: TStaticText
+      Left = 672
+      Top = 65
+      Width = 88
+      Height = 17
+      Alignment = taCenter
+      AutoSize = False
+      Color = clBtnHighlight
+      ParentColor = False
+      TabOrder = 10
+      Transparent = False
+    end
+    object pnBotoesStatus: TPanel
+      Left = 8
+      Top = 275
+      Width = 209
+      Height = 41
+      BevelOuter = bvNone
+      Enabled = False
+      TabOrder = 0
+      object btAprovarNegociacao: TButton
+        Left = 0
+        Top = 0
+        Width = 70
+        Height = 41
+        Align = alLeft
+        Caption = 'Aprovar'
+        TabOrder = 0
+        OnClick = btAprovarNegociacaoClick
+      end
+      object btConcluirNegociacao: TButton
+        Left = 70
+        Top = 0
+        Width = 70
+        Height = 41
+        Align = alLeft
+        Caption = 'Concluir'
+        TabOrder = 1
+        OnClick = btConcluirNegociacaoClick
+      end
+      object btCancelarNegociacao: TButton
+        Left = 140
+        Top = 0
+        Width = 70
+        Height = 41
+        Align = alLeft
+        Caption = 'Cancelar'
+        TabOrder = 2
+        OnClick = btCancelarNegociacaoClick
+      end
+    end
+  end
+end

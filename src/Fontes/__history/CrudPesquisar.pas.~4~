@@ -1,0 +1,37 @@
+﻿unit CrudPesquisar;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, ExtCtrls, Vcl.Grids;
+
+type
+  TFrCrudPesquisar = class(TForm)
+    pnFiltros: TPanel;
+    lbChave: TLabel;
+    lbFiltros: TLabel;
+    cbFiltros: TComboBox;
+    eChave: TEdit;
+    sgPesquisa: TStringGrid;
+    procedure eChaveKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrCrudPesquisar: TFrCrudPesquisar;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFrCrudPesquisar.eChaveKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+//
+end;
+
+end.

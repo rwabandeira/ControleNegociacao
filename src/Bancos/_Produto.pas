@@ -56,13 +56,13 @@ begin
     pesq.SQL.Add(') values (');
     pesq.SQL.Add('  ' + QuotedStr(IntToStr(produto.produto_id)) + ',');
     pesq.SQL.Add('  ' + QuotedStr(produto.nome) + ',');
-    pesq.SQL.Add('  ' + QuotedStr(_Biblioteca.TrocaVirgulaPorPonto(CurrToStr(produto.preco_venda))));
+    pesq.SQL.Add('  ' + QuotedStr(ToNumber(produto.preco_venda)));
     pesq.SQL.Add(')');
   end
   else begin
     pesq.SQL.Add('update PRODUTOS set');
     pesq.SQL.Add('  NOME = ' + QuotedStr(produto.nome) + ',');
-    pesq.SQL.Add('  PRECO_VENDA = ' + QuotedStr(CurrToStr(produto.preco_venda)));
+    pesq.SQL.Add('  PRECO_VENDA = ' + QuotedStr(ToNumber(produto.preco_venda)));
     pesq.SQL.Add('where PRODUTO_ID = ' + QuotedStr(IntToStr(produto.produto_id)));
   end;
 

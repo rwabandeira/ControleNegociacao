@@ -1,0 +1,33 @@
+unit PesquisaTeste;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CrudPesquisar, Vcl.Grids, Vcl.StdCtrls,
+  Vcl.ExtCtrls;
+
+type
+  TFrCrudPesquisar1 = class(TFrCrudPesquisar)
+    procedure eChaveKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrCrudPesquisar1: TFrCrudPesquisar1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFrCrudPesquisar1.eChaveKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+//
+end;
+
+end.

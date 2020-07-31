@@ -58,36 +58,30 @@ begin
 end;
 
 procedure TFrDistribuidores.btExcluirClick(Sender: TObject);
-var
-  con: TSqlConnection;
 begin
   inherited;
   if eCodigo.Text = '' then
     Abort;
 
   if MessageDlg('Deseja remover o distribuidor selecionado?', mtconfirmation, mbokcancel, 0) = 1 then begin
-    con := _DB.Conexao;
-
     try
-      _Distribuidor.ExcluirDistribuidor(con, StrToInt(eCodigo.Text));
+      _Distribuidor.ExcluirDistribuidor(Conexao, StrToInt(eCodigo.Text));
       Application.MessageBox('Registro excluido com sucesso!', 'Atenção', 0);
       btCancelarClick(Self);
-    except on e: Exception do
-      ShowMessage(e.Message);
-    End;
+    except
+      on e: Exception do
+        ShowMessage(e.Message);
+    end;
   end;
 end;
 
 procedure TFrDistribuidores.btGravarClick(Sender: TObject);
 var
-  con: TSqlConnection;
   distribuidor: WebDistribuidor;
 begin
   inherited;
   VerificarDados;
   
-  con := _DB.Conexao;
-
   if eCodigo.Text = '' then
     distribuidor.distribuidor_id := 0
   else
@@ -103,11 +97,12 @@ begin
   distribuidor.cpf_cnpj := meCpfCnpj.Text;
 
   try
-    _Distribuidor.AtualizarDistribuidor(con, distribuidor);
+    _Distribuidor.AtualizarDistribuidor(Conexao, distribuidor);
     Application.MessageBox(Pchar('Distribuidor atualizado com sucesso!'), 'Atenção', 0);
     btCancelarClick(Self);
-  except on e: Exception do
-    ShowMessage(e.Message);
+  except
+    on e: Exception do
+      ShowMessage(e.Message);
   end;
 end;
 
@@ -137,8 +132,6 @@ end;
 
 procedure TFrDistribuidores.eCodigoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-  con: TSqlConnection;
 begin
   inherited;
   if Key <> VK_RETURN then
@@ -146,11 +139,10 @@ begin
 
   distribuidores := nil;
   if eCodigo.Text <> '' then begin
-    con := _DB.Conexao;
-    distribuidores := _Distribuidor.BuscarDistribuidores(con, 'and DISTRIBUIDOR_ID = ' + eCodigo.Text);
+    distribuidores := _Distribuidor.BuscarDistribuidores(Conexao, 'and DISTRIBUIDOR_ID = ' + eCodigo.Text);
 
     if distribuidores = nil then begin
-      Application.MessageBox('Distribuidor não encontrado!!', 'Atenção', 0);
+      Application.MessageBox('Distribuidor não encontrado!', 'Atenção', 0);
       Abort;
     end;
   end;

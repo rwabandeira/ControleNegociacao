@@ -1,0 +1,18 @@
+inherited FrPesquisarProdutores: TFrPesquisarProdutores
+  Caption = 'Pesquisa de Produtores'
+  PopupMode = pmExplicit
+  PopupParent = FrProdutores.Owner
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnFiltros: TPanel
+    inherited eChave: TEdit
+      OnKeyDown = eChaveKeyDown
+    end
+  end
+  inherited sgPesquisa: TStringGrid
+    OnDblClick = sgPesquisaDblClick
+    OnEnter = sgPesquisaEnter
+    OnKeyDown = sgPesquisaKeyDown
+  end
+end

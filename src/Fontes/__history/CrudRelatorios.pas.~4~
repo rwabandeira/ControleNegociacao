@@ -1,0 +1,28 @@
+unit CrudRelatorios;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, ExtCtrls;
+
+type
+  TFrCrudRelatorios = class(TForm)
+    pnBotoes: TPanel;
+    btProcessar: TButton;
+    btExcluir: TButton;
+    pnCampos: TPanel;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrCrudRelatorios: TFrCrudRelatorios;
+
+implementation
+
+{$R *.dfm}
+
+end.

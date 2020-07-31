@@ -1,7 +1,7 @@
 object FrMenu: TFrMenu
   Left = 0
   Top = 0
-  Caption = 'Menu'
+  Caption = 'Controle de Negocia'#231#245'es'
   ClientHeight = 299
   ClientWidth = 635
   Color = clBtnFace
@@ -10,15 +10,18 @@ object FrMenu: TFrMenu
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  FormStyle = fsMDIForm
   Menu = mmMenu
-  OldCreateOrder = False
+  OldCreateOrder = True
+  Visible = True
   WindowState = wsMaximized
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object mmMenu: TMainMenu
     Left = 576
     Top = 248
-    object miParametros: TMenuItem
+    object miCadastros: TMenuItem
       Caption = 'Cadastros'
       object miProdutores: TMenuItem
         Caption = 'Produtores'
@@ -33,9 +36,30 @@ object FrMenu: TFrMenu
         OnClick = miProdutosClick
       end
     end
-    object miNegociacao: TMenuItem
-      Caption = 'Negocia'#231#227'o'
-      OnClick = miNegociacaoClick
+    object miVendas: TMenuItem
+      Caption = 'Vendas'
+      object miNegociacoes: TMenuItem
+        Caption = 'Negocia'#231#245'es'
+        OnClick = miNegociacoesClick
+      end
+      object miManutencaoNegociacao: TMenuItem
+        Caption = 'Manuten'#231#227'o'
+        OnClick = miManutencaoNegociacaoClick
+      end
+    end
+    object miRelatorios: TMenuItem
+      Caption = 'Relat'#243'rios'
+      object miRelVendas: TMenuItem
+        Caption = 'Vendas'
+        object miRelNegociacoes: TMenuItem
+          Caption = 'Negocia'#231#245'es'
+          OnClick = miRelNegociacoesClick
+        end
+      end
+    end
+    object miSair: TMenuItem
+      Caption = 'Sair'
+      OnClick = miSairClick
     end
   end
   object sqlConect: TSQLConnection

@@ -13,34 +13,18 @@ inherited FrProdutos: TFrProdutos
     Width = 519
     ExplicitWidth = 519
     inherited btGravar: TButton
-      Caption = '&Gravar'
       OnClick = btGravarClick
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitHeight = 41
     end
     inherited btCancelar: TButton
-      Caption = '&Cancelar'
       OnClick = btCancelarClick
-      ExplicitLeft = 140
-      ExplicitTop = 0
-      ExplicitHeight = 41
     end
     inherited btExcluir: TButton
-      Caption = '&Excluir'
       OnClick = btExcluirClick
-      ExplicitLeft = 70
-      ExplicitTop = 0
-      ExplicitHeight = 41
     end
     inherited btPesquisar: TButton
       Left = 449
-      Align = alRight
-      Caption = '&Pesquisar'
       OnClick = btPesquisarClick
       ExplicitLeft = 449
-      ExplicitTop = 0
-      ExplicitHeight = 41
     end
   end
   inherited pnCampos: TPanel
@@ -74,6 +58,7 @@ inherited FrProdutos: TFrProdutos
       Top = 25
       Width = 59
       Height = 21
+      Alignment = taRightJustify
       NumbersOnly = True
       TabOrder = 0
       OnKeyDown = eCodigoKeyDown
@@ -92,6 +77,7 @@ inherited FrProdutos: TFrProdutos
       Top = 25
       Width = 115
       Height = 21
+      Alignment = taRightJustify
       CharCase = ecUpperCase
       Enabled = False
       TabOrder = 2

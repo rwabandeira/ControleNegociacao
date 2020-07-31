@@ -5,21 +5,32 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Menus, Produtores, Data.DBXFirebird, Data.DB, Data.SqlExpr,
-  Distribuidores, Produtos, Negociacoes;
+  Distribuidores, Produtos, Negociacoes, ManutencaoNegociacoes,
+  RelacaoNegociacoes, _DB;
 
 type
   TFrMenu = class(TForm)
     mmMenu: TMainMenu;
-    miParametros: TMenuItem;
+    miCadastros: TMenuItem;
     miProdutores: TMenuItem;
     miDistribuidores: TMenuItem;
-    miNegociacao: TMenuItem;
+    miVendas: TMenuItem;
     sqlConect: TSQLConnection;
     miProdutos: TMenuItem;
+    miNegociacoes: TMenuItem;
+    miManutencaoNegociacao: TMenuItem;
+    miRelatorios: TMenuItem;
+    miRelVendas: TMenuItem;
+    miRelNegociacoes: TMenuItem;
+    miSair: TMenuItem;
     procedure miProdutoresClick(Sender: TObject);
     procedure miDistribuidoresClick(Sender: TObject);
     procedure miProdutosClick(Sender: TObject);
-    procedure miNegociacaoClick(Sender: TObject);
+    procedure miNegociacoesClick(Sender: TObject);
+    procedure miManutencaoNegociacaoClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure miRelNegociacoesClick(Sender: TObject);
+    procedure miSairClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -33,6 +44,11 @@ implementation
 
 {$R *.dfm}
 
+procedure TFrMenu.FormCreate(Sender: TObject);
+begin
+  Conexao.Create(Application);
+end;
+
 procedure TFrMenu.miDistribuidoresClick(Sender: TObject);
 var
   frmDistribuidores: TfrDistribuidores;
@@ -41,7 +57,15 @@ begin
   frmDistribuidores.Show;
 end;
 
-procedure TFrMenu.miNegociacaoClick(Sender: TObject);
+procedure TFrMenu.miManutencaoNegociacaoClick(Sender: TObject);
+var
+  frmManutencaoNegociacoes: TfrManutencaoNegociacoes;
+begin
+  frmManutencaoNegociacoes := TfrManutencaoNegociacoes.Create(Application);
+  frmManutencaoNegociacoes.Show;
+end;
+
+procedure TFrMenu.miNegociacoesClick(Sender: TObject);
 var
   frmNegociacoes: TfrNegociacoes;
 begin
@@ -63,6 +87,19 @@ var
 begin
   frmProdutos := TfrProdutos.Create(Application);
   frmProdutos.Show;
+end;
+
+procedure TFrMenu.miRelNegociacoesClick(Sender: TObject);
+var
+  frmRelNegociacoes: TfrRelNegociacoes;
+begin
+  frmRelNegociacoes := TfrRelNegociacoes.Create(Application);
+  frmRelNegociacoes.Show;
+end;
+
+procedure TFrMenu.miSairClick(Sender: TObject);
+begin
+  Application.Terminate();
 end;
 
 end.

@@ -22,7 +22,6 @@ begin
   Result.Params.Add('VendorLib=fbclient.dll');
   Result.Params.Add('VendorLibWin64=fbclient.dll');
   Result.Params.Add('VendorLibOsx=/Library/Frameworks/Firebird.framework/Firebird');
-//  Result.Params.Add('Database=127.0.0.1/3050:D:\Users\Santri\Downloads\antigos\ControleNegociacao\data\SGR.FDB');
   Result.Params.Add('Database=127.0.0.1/3050:C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\data\SGR.FDB');
   Result.Params.Add('User_Name=sysdba');
   Result.Params.Add('Password=masterkey');

@@ -4,16 +4,11 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Grids, ExtCtrls, SqlExPr, Types, _DB, _Produto;
+  Dialogs, StdCtrls, Grids, ExtCtrls, SqlExPr, Types, _DB, _Produto,
+  _Biblioteca, CrudPesquisar;
 
 type
-  TFrPesquisarProdutos = class(TForm)
-    pnFiltros: TPanel;
-    lbChave: TLabel;
-    lbFiltros: TLabel;
-    cbFiltros: TComboBox;
-    eChave: TEdit;
-    sgPesquisa: TStringGrid;
+  TFrPesquisarProdutos = class(TFrCrudPesquisar)
     procedure eChaveKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure sgPesquisaDblClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -39,9 +34,6 @@ var
 
 implementation
 
-uses
-  Produtos;
-
 {$R *.dfm}
 
 procedure TFrPesquisarProdutos.PreencherGrid;
@@ -55,7 +47,7 @@ begin
   for i := Low(produtos) to High(produtos) do begin
     sgPesquisa.Cells[cCodigo, linha] := IntToStr(produtos[i].produto_id);
     sgPesquisa.Cells[cNome, linha] := produtos[i].nome;
-    sgPesquisa.Cells[cPreco_Venda, linha] := CurrToStr(produtos[i].preco_venda);
+    sgPesquisa.Cells[cPreco_Venda, linha] := NPadrao(produtos[i].preco_venda);
 
     linha := linha + 1;
   end;
@@ -66,17 +58,14 @@ end;
 
 procedure TFrPesquisarProdutos.BuscarProdutos;
 var
-  con: TSqlConnection;
   comando: string;
 begin
-  con := _DB.Conexao;
   if cbFiltros.ItemIndex = 0 then
     comando := 'and PRODUTO_ID = ' + eChave.Text
   else
     comando := 'and NOME like ' + QuotedStr('%' + eChave.Text + '%');
 
-  produtos := _Produto.BuscarProdutos(con, comando);
-
+  produtos := _Produto.BuscarProdutos(Conexao, comando);
   if produtos = nil then begin
     Application.MessageBox('Nenhum dado encontrado!', 'Atenção!', 0);
     Abort;

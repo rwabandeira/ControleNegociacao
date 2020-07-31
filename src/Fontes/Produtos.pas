@@ -52,35 +52,29 @@ begin
 end;
 
 procedure TFrProdutos.btExcluirClick(Sender: TObject);
-var
-  con: TSqlConnection;
 begin
   inherited;
   if eCodigo.Text = '' then
     Abort;
 
   if MessageDlg('Deseja remover o produto selecionado?', mtconfirmation, mbokcancel, 0) = 1 then begin
-    con := _DB.Conexao;
-
     try
-      _Produto.ExcluirProduto(con, StrToInt(eCodigo.Text));
+      _Produto.ExcluirProduto(Conexao, StrToInt(eCodigo.Text));
       Application.MessageBox('Registro excluido com sucesso!', 'Atenção', 0);
       btCancelarClick(Self);
-    except on e: Exception do
-      ShowMessage(e.Message);
-    End;
+    except
+      on e: Exception do
+        ShowMessage(e.Message);
+    end;
   end;
 end;
 
 procedure TFrProdutos.btGravarClick(Sender: TObject);
 var
-  con: TSqlConnection;
   produto: WebProdutos;
 begin
   inherited;
   VerificarDados;
-  
-  con := _DB.Conexao;
 
   if eCodigo.Text = '' then
     produto.produto_id := 0
@@ -88,14 +82,15 @@ begin
     produto.produto_id := StrToInt(eCodigo.Text);
 
   produto.nome := eNome.Text;
-  produto.preco_venda := StrToCurr(ePrecoVenda.Text);
+  produto.preco_venda := Valor(ePrecoVenda.Text);
 
   try
-    _Produto.AtualizarProduto(con, produto);
+    _Produto.AtualizarProduto(Conexao, produto);
     Application.MessageBox(Pchar('Produto atualizado com sucesso!'), 'Atenção', 0);
     btCancelarClick(Self);
-  except on e: Exception do
-    ShowMessage(e.Message);
+  except
+    on e: Exception do
+      ShowMessage(e.Message);
   end;
 end;
 
@@ -124,8 +119,6 @@ end;
 
 procedure TFrProdutos.eCodigoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-  con: TSqlConnection;
 begin
   inherited;
   if Key <> VK_RETURN then
@@ -133,11 +126,9 @@ begin
 
   produtos := nil;
   if eCodigo.Text <> '' then begin
-    con := _DB.Conexao;
-    produtos := _Produto.BuscarProdutos(con, 'and PRODUTO_ID = ' + eCodigo.Text);
-
+    produtos := _Produto.BuscarProdutos(Conexao, 'and PRODUTO_ID = ' + eCodigo.Text);
     if produtos = nil then begin
-      Application.MessageBox('Produto não encontrado!!', 'Atenção', 0);
+      Application.MessageBox('Produto não encontrado!', 'Atenção', 0);
       Abort;
     end;
   end;
@@ -158,7 +149,7 @@ begin
   for i := Low(produtos) to High(produtos) do begin
     eCodigo.Text := IntToStr(produtos[i].produto_id);
     eNome.Text := produtos[i].nome;
-    ePrecoVenda.Text := CurrToStr(produtos[i].preco_venda);
+    ePrecoVenda.Text := NPadrao(produtos[i].preco_venda, 2);
   end;
 
   eNome.SetFocus;

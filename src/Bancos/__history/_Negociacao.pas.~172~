@@ -1,0 +1,169 @@
+﻿unit _Negociacao;
+
+interface
+
+uses
+  System.SysUtils, _DB, SqlExPr, Forms, _LimiteCredito, _ItemNegociacao;
+
+Type
+  WebNegociacao = record
+    negociacao_id: Integer;
+    produtor_id: Integer;
+    nome_produtor: string;
+    distribuidor_id: Integer;
+    nome_distribuidor: string;
+    data_cadastro: TDateTime;
+    status: string;
+    data_aprovacao: TDateTime;
+    data_conclusao: TDateTime;
+    data_cancelamento: TDateTime;
+    itens_negociacao: TArrayOfWebItemNegociacao;
+  end;
+  TArrayOfWebNegociacao = array of WebNegociacao;
+
+function BuscarNegociacoes(con: TSqlConnection; comando: string): TArrayOfWebNegociacao;
+procedure AtualizarNegociacao(con: TSqlConnection; negociacao: WebNegociacao);
+function AlterarStatus(con: TSqlConnection; negociacao_id: Integer; status: string): Boolean;
+
+implementation
+
+procedure AtualizarNegociacao(con: TSqlConnection; negociacao: WebNegociacao);
+var
+  pesq: TSqlQuery;
+begin
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  if negociacao.negociacao_id = 0 then begin
+    pesq.SQL.Add('select gen_id(SEQ_NEGOCIACOES, 1) as ID from rdb$database');
+    pesq.Open;
+    negociacao.negociacao_id := pesq.FieldByName('ID').AsInteger;
+    pesq.Close;
+    pesq.SQL.Clear;
+
+    pesq.SQL.Add('insert into NEGOCIACOES (');
+    pesq.SQL.Add('  NEGOCIACAO_ID,');
+    pesq.SQL.Add('  PRODUTOR_ID,');
+    pesq.SQL.Add('  DISTRIBUIDOR_ID,');
+    pesq.SQL.Add('  DATA_CADASTRO,');
+    pesq.SQL.Add('  STATUS');
+    pesq.SQL.Add(') values (');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(negociacao.negociacao_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(negociacao.produtor_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(negociacao.distribuidor_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(FormatDateTime('mm/dd/yyyy', negociacao.data_cadastro)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(negociacao.status) + '');
+    pesq.SQL.Add(')');
+
+    pesq.ExecSQL;
+    pesq.Close;
+    pesq.SQL.Clear;
+
+    _ItemNegociacao.AtualizarItemNegociacao(con, negociacao.negociacao_id, negociacao.itens_negociacao);
+  end
+  else begin
+    //Atualiza somente os itens, pois os dados da negociação não poderá ser alterados.
+    _ItemNegociacao.AtualizarItemNegociacao(con, negociacao.negociacao_id, negociacao.itens_negociacao);
+  end;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+function BuscarNegociacoes(con: TSqlConnection; comando: string): TArrayOfWebNegociacao;
+var
+  pesq: TSqlQuery;
+begin
+  Result := nil;
+
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  NEG.NEGOCIACAO_ID,');
+  pesq.SQL.Add('  NEG.PRODUTOR_ID,');
+  pesq.SQL.Add('  PRO.NOME as NOME_PRODUTOR,');
+  pesq.SQL.Add('  NEG.DISTRIBUIDOR_ID,');
+  pesq.SQL.Add('  DIS.NOME as NOME_DISTRIBUIDOR,');
+  pesq.SQL.Add('  NEG.DATA_CADASTRO,');
+  pesq.SQL.Add('  NEG.STATUS,');
+  pesq.SQL.Add('  NEG.DATA_APROVACAO,');
+  pesq.SQL.Add('  NEG.DATA_CONCLUSAO,');
+  pesq.SQL.Add('  NEG.DATA_CANCELAMENTO');
+  pesq.SQL.Add('from');
+  pesq.SQL.Add('  NEGOCIACOES NEG');
+
+  pesq.SQL.Add('inner join PRODUTORES PRO');
+  pesq.SQL.Add('on NEG.PRODUTOR_ID = PRO.PRODUTOR_ID');
+
+  pesq.SQL.Add('inner join DISTRIBUIDORES DIS');
+  pesq.SQL.Add('on NEG.DISTRIBUIDOR_ID = DIS.DISTRIBUIDOR_ID');
+
+  pesq.SQL.Add('where 1 = 1');
+
+  pesq.SQL.Add(comando);
+
+  pesq.SQL.Add('order by');
+  pesq.SQL.Add('  NEG.NEGOCIACAO_ID');
+
+  pesq.Open;
+
+  while not pesq.Eof do begin
+    SetLength(Result, Length(Result) + 1);
+
+    Result[High(Result)].negociacao_id := pesq.FieldByName('NEGOCIACAO_ID').AsInteger;
+    Result[High(Result)].produtor_id := pesq.FieldByName('PRODUTOR_ID').AsInteger;
+    Result[High(Result)].nome_produtor := pesq.FieldByName('NOME_PRODUTOR').AsString;
+    Result[High(Result)].distribuidor_id := pesq.FieldByName('DISTRIBUIDOR_ID').AsInteger;
+    Result[High(Result)].nome_distribuidor := pesq.FieldByName('NOME_DISTRIBUIDOR').AsString;
+    Result[High(Result)].data_cadastro := pesq.FieldByName('DATA_CADASTRO').AsDateTime;
+    Result[High(Result)].status := pesq.FieldByName('STATUS').AsString;
+    Result[High(Result)].data_aprovacao := pesq.FieldByName('DATA_APROVACAO').AsDateTime;
+    Result[High(Result)].data_conclusao := pesq.FieldByName('DATA_CONCLUSAO').AsDateTime;
+    Result[High(Result)].data_cancelamento := pesq.FieldByName('DATA_CANCELAMENTO').AsDateTime;
+    Result[High(Result)].itens_negociacao := _ItemNegociacao.BuscarItemNegociacaoes(
+      con,
+      'and ITE.NEGOCIACAO_ID = ' + pesq.FieldByName('NEGOCIACAO_ID').AsString
+    );
+
+    pesq.Next;
+  end;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+function AlterarStatus(con: TSqlConnection; negociacao_id: Integer; status: string): Boolean;
+var
+  pesq: TSqlQuery;
+  data: TDate;
+begin
+  try
+    pesq := TSqlQuery.Create(con);
+    pesq.SQLConnection := con;
+
+    pesq.SQL.Add('update NEGOCIACOES set');
+    pesq.SQL.Add('  STATUS = :P1,');
+
+    if status = 'APR' then
+      pesq.SQL.Add('  DATA_APROVACAO = :P2')
+    else if status = 'CON' then
+      pesq.SQL.Add('  DATA_CONCLUSAO = :P2')
+    else if status = 'CAN' then
+      pesq.SQL.Add('  DATA_CANCELAMENTO = :P2');
+
+    pesq.SQL.Add('where NEGOCIACAO_ID = :P3');
+
+    pesq.ParamByName('P1').AsString := status;
+    pesq.ParamByName('P2').AsString := Date;
+    pesq.ParamByName('P3').AsInteger := negociacao_id;
+    pesq.ExecSQL;
+  finally
+    Result := True;
+  end;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+end.

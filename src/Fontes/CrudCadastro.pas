@@ -14,6 +14,7 @@ type
     btExcluir: TButton;
     btPesquisar: TButton;
     pnCampos: TPanel;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -26,5 +27,10 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TFrCrudCadastro.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := caFree;
+end;
 
 end.

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2019/11/12 21:00:30.000.666,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2019/11/12 21:00:49.000.367,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Bancos\_LimiteCredito.pas</Transaction>
+    <Transaction>2019/11/13 07:44:16.000.023,=D:\Users\Santri\Downloads\antigos\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2019/11/13 07:44:53.000.945,D:\Users\Santri\Downloads\antigos\ControleNegociacao\src\Fontes\LimiteCreditoDistribuidor.pas=D:\Users\Santri\Downloads\antigos\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2019/11/13 07:44:53.000.945,D:\Users\Santri\Downloads\antigos\ControleNegociacao\src\Fontes\LimiteCreditoDistribuidor.dfm=D:\Users\Santri\Downloads\antigos\ControleNegociacao\src\Unit1.dfm</Transaction>
+    <Transaction>2019/11/15 13:49:05.000.766,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\Produtos.pas</Transaction>
+    <Transaction>2019/11/15 13:50:37.000.488,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Bancos\_Produto.pas</Transaction>
+    <Transaction>2019/11/15 13:52:34.000.676,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\PesquisarProdutos.pas</Transaction>
+    <Transaction>2019/11/16 14:39:16.000.498,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2019/11/16 14:39:29.000.270,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\Negociacoes.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2019/11/16 14:39:29.000.270,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\Negociacoes.dfm=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.dfm</Transaction>
+    <Transaction>2019/11/17 22:23:10.000.092,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\Negociacoes.pas=</Transaction>
+    <Transaction>2019/11/17 22:23:23.000.845,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2019/11/17 22:25:30.000.797,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.dfm=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\Negociacoes.dfm</Transaction>
+    <Transaction>2019/11/17 22:25:30.000.797,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\Negociacoes.pas</Transaction>
+    <Transaction>2020/07/25 10:51:36.000.449,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/25 10:51:58.000.245,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\Negociacoes.dfm=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.dfm</Transaction>
+    <Transaction>2020/07/25 10:51:58.000.245,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\Negociacoes.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/27 11:15:32.000.844,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/27 11:16:28.000.172,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Bancos\_Negociacao.pas</Transaction>
+    <Transaction>2020/07/27 13:53:55.000.435,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\PesquisarNegociacoes.pas</Transaction>
+    <Transaction>2020/07/27 16:57:13.000.295,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Bancos\_ItemNegociacao.pas</Transaction>
+    <Transaction>2020/07/28 23:27:18.000.352,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/28 23:27:42.000.100,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\ManutencaoNegociacoes.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/28 23:27:42.000.100,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\ManutencaoNegociacoes.dfm=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.dfm</Transaction>
+    <Transaction>2020/07/29 14:27:11.000.915,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/29 14:28:03.000.638,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\DB\_Conexao.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/29 15:55:17.000.348,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/29 15:59:19.000.590,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\CrudPesquisar.pas</Transaction>
+    <Transaction>2020/07/29 16:10:15.000.631,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/29 16:15:04.000.344,=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/29 16:15:24.000.095,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\PesquisaTeste.pas=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.pas</Transaction>
+    <Transaction>2020/07/29 16:15:24.000.095,C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Fontes\PesquisaTeste.dfm=C:\Users\RobsonAraújo-.ROBSON-DELL\Documents\GitHub\ControleNegociacao\src\Unit1.dfm</Transaction>
+  </Transactions>
+</BorlandProject>

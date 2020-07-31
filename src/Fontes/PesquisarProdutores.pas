@@ -1,19 +1,14 @@
-unit PesquisarProdutores;
+﻿unit PesquisarProdutores;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Grids, ExtCtrls, SqlExPr, Types, _DB, _Produtor;
+  Dialogs, StdCtrls, Grids, ExtCtrls, SqlExPr, Types, _DB, _Produtor,
+  CrudPesquisar;
 
 type
-  TFrPesquisarProdutores = class(TForm)
-    pnFiltros: TPanel;
-    lbChave: TLabel;
-    lbFiltros: TLabel;
-    cbFiltros: TComboBox;
-    eChave: TEdit;
-    sgPesquisa: TStringGrid;
+  TFrPesquisarProdutores = class(TFrCrudPesquisar)
     procedure eChaveKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure sgPesquisaDblClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -38,9 +33,6 @@ var
 
 implementation
 
-uses
-  Produtores;
-
 {$R *.dfm}
 
 procedure TFrPesquisarProdutores.PreencherGrid;
@@ -64,29 +56,19 @@ end;
 
 procedure TFrPesquisarProdutores.BuscarProdutor;
 var
-//  i: Integer;
-  con: TSqlConnection;
   comando: string;
 begin
-  con := _DB.Conexao;
   if cbFiltros.ItemIndex = 0 then
     comando := 'and PRODUTOR_ID = ' + eChave.Text
   else
     comando := 'and NOME like ' + QuotedStr('%' + eChave.Text + '%');
 
-  produtores := _Produtor.BuscarProdutores(con, comando);
+  produtores := _Produtor.BuscarProdutores(Conexao, comando);
 
   if produtores = nil then begin
-    Application.MessageBox('Nenhum dado encontrado!', 'Aten��o!', 0);
+    Application.MessageBox('Nenhum dado encontrado!', 'Atenção!', 0);
     Abort;
   end;
-
-//  dados := nil;
-//  for i := Low(produtores) to High(produtores) do begin
-//    SetLength(dados, Length(dados) + 1);
-//    dados[High(dados)].codigo := produtores[i].produtor_id;
-//    dados[High(dados)].nome := produtores[i].nome;
-//  end;
 
   PreencherGrid;
 end;
@@ -100,11 +82,11 @@ end;
 procedure TFrPesquisarProdutores.FormShow(Sender: TObject);
 begin
   cbFiltros.Items.Clear;
-  cbFiltros.Items.Add('C�digo');
+  cbFiltros.Items.Add('Código');
   cbFiltros.Items.Add('Nome');
   cbFiltros.ItemIndex := 1;
 
-  sgPesquisa.Cells[cCodigo, sgPesquisa.FixedRows -1] := 'C�digo';
+  sgPesquisa.Cells[cCodigo, sgPesquisa.FixedRows -1] := 'Código';
   sgPesquisa.Cells[cNome, sgPesquisa.FixedRows -1] := 'Nome';
 
   eChave.SetFocus;

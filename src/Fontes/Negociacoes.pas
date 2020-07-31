@@ -4,12 +4,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, PesquisarProdutores,
-  PesquisarDistribuidores, PesquisarProdutos, SqlExPr, _DB, _Produtor, _Distribuidor,
-  _Produto, _Biblioteca, CrudCadastro, Vcl.ExtCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CrudCadastro, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Grids, PesquisarProdutores, PesquisarDistribuidores, PesquisarProdutos,
+  SqlExPr, _DB, _Produtor, _Distribuidor, _Produto, _Biblioteca, _Negociacao,
+  PesquisarNegociacoes, _LimiteCredito;
 
 type
-  TfrNegociacoes = class(TFrCrudCadastro)
+  TFrNegociacoes = class(TFrCrudCadastro)
     lbProdutorId: TLabel;
     lbDistribuidorId: TLabel;
     lbProduto: TLabel;
@@ -39,33 +40,42 @@ type
     procedure btPesqProdutorClick(Sender: TObject);
     procedure btPesqDistribuidorClick(Sender: TObject);
     procedure btPesqProdutoClick(Sender: TObject);
-    procedure eProdutorIdChange(Sender: TObject);
     procedure eDistribuidorIdChange(Sender: TObject);
+    procedure eProdutorIdChange(Sender: TObject);
     procedure eProdutoIdChange(Sender: TObject);
-    procedure eProdutorIdKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
     procedure eDistribuidorIdKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure eProdutoIdKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure eQuantidadeKeyDown(Sender: TObject; var Key: Word;
+    procedure eProdutorIdKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure eQuantidadeChange(Sender: TObject);
+    procedure eQuantidadeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
+    procedure btCancelarClick(Sender: TObject);
+    procedure btPesquisarClick(Sender: TObject);
+    procedure btGravarClick(Sender: TObject);
   private
     { Private declarations }
     total_geral: Double;
+    negociacao_id: Integer;
+    negociacao: WebNegociacao;
+    valor_original_negociacao: Double;
+    procedure VerificarDados;
+    procedure PreencherGrid;
+    procedure MontarDados(negociacao: WebNegociacao);
   public
     { Public declarations }
   end;
 
 const
   //sgItens
-  cProduto_Id   = 0;
-  cNome         = 1;
-  cPreco_Venda  = 2;
-  cQuantidade   = 3;
-  cTotal        = 4;
+  cProduto_Id     = 0;
+  cNome           = 1;
+  cPreco_Venda    = 2;
+  cQuantidade     = 3;
+  cTotal_Produto  = 4;
 
 var
   FrNegociacoes: TFrNegociacoes;
@@ -74,20 +84,105 @@ implementation
 
 {$R *.dfm}
 
+procedure TFrNegociacoes.btCancelarClick(Sender: TObject);
+begin
+  inherited;
+  eProdutorId.Clear;
+  eNomeProdutor.Clear;
+  eProdutorId.Enabled := True;
+  btPesqProdutor.Enabled := True;
+
+  eDistribuidorId.Clear;
+  eNomeDistribuidor.Clear;
+  eDistribuidorId.Enabled := True;
+  btPesqDistribuidor.Enabled := True;
+
+  eDataCadastro.Clear;
+  stStatus.Caption := '';
+
+  eProdutoId.Clear;
+  eNomeProduto.Clear;
+  eProdutoId.Enabled := False;
+  btPesqProduto.Enabled := False;
+  ePrecoVenda.Clear;
+  eQuantidade.Clear;
+  eTotal.Clear;
+
+  LimpaGrid(sgItens);
+  sgItens.RowCount := sgItens.FixedRows + 1;
+  sgItens.Enabled := False;
+  eTotalGeral.Clear;
+
+  btGravar.Enabled := False;
+  btCancelar.Enabled := False;
+  btPesquisar.Enabled := True;
+
+  negociacao_id := 0;
+  total_geral := 0;
+
+  eProdutorId.SetFocus;
+end;
+
+procedure TFrNegociacoes.btGravarClick(Sender: TObject);
+var
+  negociacao: WebNegociacao;
+  i: Integer;
+begin
+  inherited;
+  VerificarDados;
+
+  negociacao.negociacao_id := negociacao_id;
+  negociacao.produtor_id := StrToInt(eProdutorId.Text);
+  negociacao.distribuidor_id := StrToInt(eDistribuidorId.Text);
+  negociacao.data_cadastro := StrToDate(eDataCadastro.Text);
+  negociacao.status := Decode(
+    stStatus.Caption,
+    [
+      'Pendente', 'PEN',
+      'Aprovada', 'APR',
+      'Concluída', 'CON',
+      'Cancelada', 'CAN'
+    ]
+  );
+
+  negociacao.itens_negociacao := nil;
+  for i := sgItens.FixedRows to sgItens.RowCount -1 do begin
+    SetLength(negociacao.itens_negociacao, Length(negociacao.itens_negociacao) + 1);
+    negociacao.itens_negociacao[High(negociacao.itens_negociacao)].negociacao_id := negociacao.negociacao_id;
+    negociacao.itens_negociacao[High(negociacao.itens_negociacao)].item_id := i;
+    negociacao.itens_negociacao[High(negociacao.itens_negociacao)].produto_id := StrToInt(sgItens.Cells[cProduto_Id, i]);
+    negociacao.itens_negociacao[High(negociacao.itens_negociacao)].preco_venda := Valor(sgItens.Cells[cPreco_Venda, i]);
+    negociacao.itens_negociacao[High(negociacao.itens_negociacao)].quantidade := Valor(sgItens.Cells[cQuantidade, i]);
+  end;
+
+  try
+    _Negociacao.AtualizarNegociacao(Conexao, negociacao);
+    Application.MessageBox(Pchar('Negociação atualizada com sucesso!'), 'Atenção', 0);
+    btCancelarClick(Self);
+  except
+    on e: Exception do
+      ShowMessage(e.Message);
+  end;
+end;
+
 procedure TFrNegociacoes.btPesqDistribuidorClick(Sender: TObject);
 var
   frmPesquisa: TFrPesquisarDistribuidores;
+  key: Word;
 begin
+  Key := Ord(VK_RETURN);
   frmPesquisa := TFrPesquisarDistribuidores.Create(Self);
   frmPesquisa.ShowModal;
 
   if frmPesquisa.distribuidor.distribuidor_id > 0 then begin
-    eProdutorId.Text := IntToStr(frmPesquisa.distribuidor.distribuidor_id);
-    eNomeProdutor.Text := frmPesquisa.distribuidor.nome;
+    eDistribuidorId.Text := NPadrao(frmPesquisa.distribuidor.distribuidor_id, 0);
+    eNomeDistribuidor.Text := frmPesquisa.distribuidor.nome;
   end;
 
   FreeAndNil(frmPesquisa);
-  eProdutoId.SetFocus;
+
+  if (eProdutorId.Text <> '') and (eDistribuidorId.Text <> '') then
+    eDistribuidorIdKeyDown(Sender, Key, [ssCtrl]);
 end;
 
 procedure TFrNegociacoes.btPesqProdutoClick(Sender: TObject);
@@ -98,9 +193,9 @@ begin
   frmPesquisa.ShowModal;
 
   if frmPesquisa.produto.produto_id > 0 then begin
-    eProdutorId.Text := IntToStr(frmPesquisa.produto.produto_id);
+    eProdutorId.Text := NPadrao(frmPesquisa.produto.produto_id, 0);
     eNomeProdutor.Text := frmPesquisa.produto.nome;
-    ePrecoVenda.Text := CurrToStr(frmPesquisa.produto.preco_venda);
+    ePrecoVenda.Text := NPadrao(frmPesquisa.produto.preco_venda);
   end;
 
   FreeAndNil(frmPesquisa);
@@ -115,12 +210,39 @@ begin
   frmPesquisa.ShowModal;
 
   if frmPesquisa.produtor.produtor_id > 0 then begin
-    eProdutorId.Text := IntToStr(frmPesquisa.produtor.produtor_id);
+    eProdutorId.Text := NPadrao(frmPesquisa.produtor.produtor_id, 0);
     eNomeProdutor.Text := frmPesquisa.produtor.nome;
   end;
 
   FreeAndNil(frmPesquisa);
   eDistribuidorId.SetFocus;
+end;
+
+procedure TFrNegociacoes.btPesquisarClick(Sender: TObject);
+var
+  frmPesquisa: TFrPesquisarNegociacoes;
+begin
+  inherited;
+  frmPesquisa := TFrPesquisarNegociacoes.Create(Self);
+  frmPesquisa.ShowModal;
+  
+  Initialize(negociacao);
+  negociacao := Default(_Negociacao.WebNegociacao);
+
+  if frmPesquisa.negociacao.negociacao_id > 0 then
+    negociacao := frmPesquisa.negociacao;
+
+  FreeAndNil(frmPesquisa);
+
+  if negociacao.negociacao_id = 0 then
+    Exit;
+
+  negociacao_id := negociacao.negociacao_id;
+  sgItens.Enabled := True;
+  btGravar.Enabled := True;
+  btCancelar.Enabled := True;
+  btPesquisar.Enabled := False;
+  MontarDados(negociacao);
 end;
 
 procedure TFrNegociacoes.eDistribuidorIdChange(Sender: TObject);
@@ -132,40 +254,43 @@ end;
 procedure TFrNegociacoes.eDistribuidorIdKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  con: TSqlConnection;
   distribuidores: TArrayOfWebDistribuidor;
 begin
   if Key <> VK_RETURN then
     Exit;
 
+  if eDistribuidorId.Text = '' then
+    Exit;
+
   distribuidores := nil;
-  if eDistribuidorId.Text <> '' then begin
-    con := _DB.Conexao;
-    distribuidores := _Distribuidor.BuscarDistribuidores(con, 'and DISTRIBUIDOR_ID = ' + eDistribuidorId.Text);
+  distribuidores := _Distribuidor.BuscarDistribuidores(Conexao, 'and DISTRIBUIDOR_ID = ' + eDistribuidorId.Text);
 
-    if distribuidores = nil then begin
-      Application.MessageBox('Distribuidor não encontrado!!', 'Atenção', 0);
-      Abort;
-    end;
+  if distribuidores = nil then begin
+    Application.MessageBox('Distribuidor não encontrado!', 'Atenção', 0);
+    Exit;
   end;
 
-  if distribuidores <> nil then begin
-    eDistribuidorId.Text := IntToStr(distribuidores[0].distribuidor_id);
-    eNomeDistribuidor.Text := distribuidores[0].nome;
-  end;
-
-  stStatus.Caption := 'Pendente';
+  eDistribuidorId.Text := NPadrao(distribuidores[0].distribuidor_id, 0);
+  eNomeDistribuidor.Text := distribuidores[0].nome;
 
   if (eProdutorId.Text <> '') and (eDistribuidorId.Text <> '') then begin
-    eDataCadastro.Text := DateToStr(Trunc(Now));
     eProdutorId.Enabled := False;
     btPesqProdutor.Enabled := False;
+
     eDistribuidorId.Enabled := False;
     btPesqDistribuidor.Enabled := False;
 
+    eDataCadastro.Text := DateToStr(Trunc(Now));
+    stStatus.Caption := 'Pendente';
+
     eProdutoId.Enabled := True;
+    btPesqProduto.Enabled := True;
     eQuantidade.Enabled := True;
     sgItens.Enabled := True;
+
+    btGravar.Enabled := True;
+    btCancelar.Enabled := True;
+    btPesquisar.Enabled := False;
 
     eProdutoId.SetFocus;
   end;
@@ -180,7 +305,6 @@ end;
 procedure TFrNegociacoes.eProdutoIdKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  con: TSqlConnection;
   produtos: TArrayOfWebProdutos;
 begin
   if Key <> VK_RETURN then
@@ -188,19 +312,17 @@ begin
 
   produtos := nil;
   if eProdutoId.Text <> '' then begin
-    con := _DB.Conexao;
-    produtos := _Produto.BuscarProdutos(con, 'and PRODUTO_ID = ' + eProdutoId.Text);
-
+    produtos := _Produto.BuscarProdutos(Conexao, 'and PRODUTO_ID = ' + eProdutoId.Text);
     if produtos = nil then begin
-      Application.MessageBox('Produto não encontrado!!', 'Atenção', 0);
-      Abort;
+      Application.MessageBox('Produto não encontrado!', 'Atenção', 0);
+      Exit;
     end;
   end;
 
   if produtos <> nil then begin
-    eProdutoId.Text := IntToStr(produtos[0].produto_id);
+    eProdutoId.Text := NPadrao(produtos[0].produto_id, 0);
     eNomeProduto.Text := produtos[0].nome;
-    ePrecoVenda.Text := CurrToStr(produtos[0].preco_venda);
+    ePrecoVenda.Text := NPadrao(produtos[0].preco_venda);
   end;
 
   eQuantidade.SetFocus;
@@ -215,7 +337,6 @@ end;
 procedure TFrNegociacoes.eProdutorIdKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  con: TSqlConnection;
   produtores: TArrayOfWebProdutor;
 begin
   if Key <> VK_RETURN then
@@ -223,17 +344,15 @@ begin
 
   produtores := nil;
   if eProdutorId.Text <> '' then begin
-    con := _DB.Conexao;
-    produtores := _Produtor.BuscarProdutores(con, 'and PRODUTOR_ID = ' + eProdutorId.Text);
-
+    produtores := _Produtor.BuscarProdutores(Conexao, 'and PRODUTOR_ID = ' + eProdutorId.Text);
     if produtores = nil then begin
-      Application.MessageBox('Produtor não encontrado!!', 'Atenção', 0);
+      Application.MessageBox('Produtor não encontrado!', 'Atenção', 0);
       Abort;
     end;
   end;
 
   if produtores <> nil then begin
-    eProdutorId.Text := IntToStr(produtores[0].produtor_id);
+    eProdutorId.Text := NPadrao(produtores[0].produtor_id ,0);
     eNomeProdutor.Text := produtores[0].nome;
   end;
 
@@ -245,31 +364,37 @@ var
   preco_venda: Double;
   quantidade: Double;
 begin
-  preco_venda := StrToFloat(ePrecoVenda.Text);
-  quantidade := StrToFloat(eQuantidade.Text);
-  eTotal.Text := FloatToStr(preco_venda * quantidade);
+  if eQuantidade.Text = '' then
+    Exit;
+
+  preco_venda := Valor(ePrecoVenda.Text);
+  quantidade := Valor(eQuantidade.Text);
+  eTotal.Text := NPadrao(preco_venda * quantidade);
 end;
 
 procedure TFrNegociacoes.eQuantidadeKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  linha: Integer;
+  posic: Integer;
 begin
   if Key <> VK_RETURN then
     Exit;
 
-  linha := sgItens.RowCount -1;
-  sgItens.Cells[cProduto_Id, linha] := eProdutoId.Text;
-  sgItens.Cells[cNome, linha] := eNomeProduto.Text;
-  sgItens.Cells[cPreco_Venda, linha] := ePrecoVenda.Text;
-  sgItens.Cells[cQuantidade, linha] := eQuantidade.Text;
-  sgItens.Cells[cTotal, linha] := eTotal.Text;
+  if sgItens.Cells[cProduto_Id, sgItens.FixedRows] = '' then
+    posic := 1
+  else
+    posic := sgItens.RowCount;
 
-  Inc(linha);
+  sgItens.Cells[cProduto_Id, posic] := eProdutoId.Text;
+  sgItens.Cells[cNome, posic] := eNomeProduto.Text;
+  sgItens.Cells[cPreco_Venda, posic] := ePrecoVenda.Text;
+  sgItens.Cells[cQuantidade, posic] := eQuantidade.Text;
+  sgItens.Cells[cTotal_Produto, posic] := eTotal.Text;
 
-  sgItens.RowCount := IIf(linha <> sgItens.RowCount -1, linha + 1, sgItens.RowCount);
+  sgItens.RowCount := posic + 1;
 
-  total_geral := total_geral + StrToFloat(eTotal.Text);
+  total_geral := total_geral + Valor(eTotal.Text);
+  eTotalGeral.Text := NPadrao(total_geral);
 
   eProdutoId.Clear;
   eNomeProduto.Clear;
@@ -287,7 +412,88 @@ begin
   sgItens.Cells[cNome, sgItens.FixedRows -1] := 'Produto';
   sgItens.Cells[cPreco_Venda, sgItens.FixedRows -1] := 'Preço venda';
   sgItens.Cells[cQuantidade, sgItens.FixedRows -1] := 'Quantidade';
-  sgItens.Cells[cTotal, sgItens.FixedRows -1] := 'Total';
+  sgItens.Cells[cTotal_Produto, sgItens.FixedRows -1] := 'Total';
+  negociacao_id := 0;
+  total_geral := 0;
+end;
+
+procedure TFrNegociacoes.VerificarDados;
+begin
+  if eProdutorId.Text = '' then begin
+    Application.MessageBox('O produto deve ser informado!', 'Atenção', 0);
+    Abort;
+  end;
+
+  if eDistribuidorId.Text = '' then begin
+    Application.MessageBox('O distribuidor deve ser informado!', 'Atenção', 0);
+    Abort;
+  end;
+
+  if eTotalGeral.Text = '' then begin
+    Application.MessageBox('Nenhum produto informado!', 'Atenção', 0);
+    Abort;
+  end;
+
+  if not _LimiteCredito.ExisteLimiteNegociacao(
+    Conexao,
+    ValorInt(eProdutorId.Text),
+    ValorInt(eDistribuidorId.Text),
+    Valor(eTotalGeral.Text),
+    valor_original_negociacao
+  ) then begin
+    Application.MessageBox('Sem limite para efetuar a negociação!', 'Atenção', 0);
+    Abort;
+  end;
+end;
+
+procedure TFrNegociacoes.PreencherGrid;
+var
+  i: Integer;
+  linha: Integer;
+begin
+  linha := sgItens.FixedRows;
+  sgItens.RowCount := sgItens.FixedRows + 1;
+
+  for i := Low(negociacao.itens_negociacao) to High(negociacao.itens_negociacao) do begin
+    sgItens.Cells[cProduto_Id, linha] := NPadrao(negociacao.itens_negociacao[i].produto_id, 0);
+    sgItens.Cells[cNome, linha] := negociacao.itens_negociacao[i].nome_produto;
+    sgItens.Cells[cPreco_Venda, linha] := NPadrao(negociacao.itens_negociacao[i].preco_venda);
+    sgItens.Cells[cQuantidade, linha] := NPadrao(negociacao.itens_negociacao[i].quantidade);
+    sgItens.Cells[cTotal_Produto, linha] := NPadrao(negociacao.itens_negociacao[i].preco_venda * negociacao.itens_negociacao[i].quantidade);
+
+    total_geral := total_geral + Valor(sgItens.Cells[cTotal_Produto, linha]);
+
+    Inc(linha);
+  end;
+
+  sgItens.RowCount := IIf(linha <> sgItens.RowCount -1, linha, sgItens.RowCount);
+  eTotalGeral.Text := NPadrao(total_geral);
+  valor_original_negociacao := total_geral;
+end;
+
+procedure TFrNegociacoes.MontarDados(negociacao: WebNegociacao);
+begin
+  eProdutorId.Text := NPadrao(negociacao.produtor_id, 0);
+  eNomeProdutor.Text := negociacao.nome_produtor;
+  btPesqProdutor.Enabled := False;
+
+  eDistribuidorId.Text := NPadrao(negociacao.distribuidor_id, 0);
+  eNomeDistribuidor.Text := negociacao.nome_distribuidor;
+  btPesqDistribuidor.Enabled := False;
+
+  eDataCadastro.Text := DateToStr(negociacao.data_cadastro);
+  stStatus.Caption := Decode(
+    negociacao.status,
+    [
+      'PEN', 'Pendente',
+      'APR', 'Aprovada',
+      'CON', 'Concluída',
+      'CAN', 'Cancelada'
+    ]
+  );
+
+  PreencherGrid;
+  sgItens.SetFocus;
 end;
 
 end.

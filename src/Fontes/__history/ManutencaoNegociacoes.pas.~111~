@@ -1,0 +1,210 @@
+unit ManutencaoNegociacoes;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CrudCadastro, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Grids, _Biblioteca, _Negociacao, PesquisarNegociacoes, SqlExPr, _DB;
+
+type
+  TfrManutencaoNegociacoes = class(TFrCrudCadastro)
+    lbProdutorId: TLabel;
+    lbDistribuidorId: TLabel;
+    lbDataCadastro: TLabel;
+    lbTotalGeral: TLabel;
+    eProdutorId: TEdit;
+    eNomeProdutor: TEdit;
+    eDistribuidorId: TEdit;
+    eNomeDistribuidor: TEdit;
+    stItens: TStaticText;
+    sgItens: TStringGrid;
+    eDataCadastro: TEdit;
+    eTotalGeral: TEdit;
+    stTitStatus: TStaticText;
+    stStatus: TStaticText;
+    pnBotoesStatus: TPanel;
+    btAprovarNegociacao: TButton;
+    btConcluirNegociacao: TButton;
+    btCancelarNegociacao: TButton;
+    procedure btPesquisarClick(Sender: TObject);
+    procedure btCancelarNegociacaoClick(Sender: TObject);
+    procedure btConcluirNegociacaoClick(Sender: TObject);
+    procedure btAprovarNegociacaoClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+    total_geral: Double;
+    negociacao_id: Integer;
+    negociacao: WebNegociacao;
+    procedure PreencherGrid;
+    procedure MontarDados(negociacao: WebNegociacao);
+    procedure AlterarStatus(status: string);
+    procedure AjustarBotoes;
+  public
+    { Public declarations }
+  end;
+
+const
+  //sgItens
+  cProduto_Id     = 0;
+  cNome           = 1;
+  cPreco_Venda    = 2;
+  cQuantidade     = 3;
+  cTotal_Produto  = 4;
+
+var
+  frManutencaoNegociacoes: TfrManutencaoNegociacoes;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrManutencaoNegociacoes.AjustarBotoes;
+begin
+  btAprovarNegociacao.Enabled := False;
+  btConcluirNegociacao.Enabled := False;
+  btCancelarNegociacao.Enabled := False;
+
+  if negociacao.status = 'PEN' then begin
+    btAprovarNegociacao.Enabled := True;
+    btConcluirNegociacao.Enabled := True;
+    btCancelarNegociacao.Enabled := True;
+  end
+  else if negociacao.status = 'APR' then begin
+    btConcluirNegociacao.Enabled := True;
+    btCancelarNegociacao.Enabled := True;
+  end;
+end;
+
+procedure TfrManutencaoNegociacoes.AlterarStatus(status: string);
+var
+  status_analitico: string;
+begin
+  if status = 'APR' then
+    status_analitico := 'aprovada'
+  else if status = 'CON' then
+    status_analitico := 'concluída'
+  else if status = 'CAN' then
+    status_analitico := 'cancelada';
+
+  if _Negociacao.AlterarStatus(Conexao, negociacao_id, status) then begin
+    stStatus.Caption := PrimeiraLetraMaiscula(status_analitico);
+    negociacao.status := status;
+
+    stTitStatus.Color := clTeal;
+    if status = 'CAN' then
+      stTitStatus.Color := clRed;
+
+    AjustarBotoes;
+    Application.MessageBox(PChar('A negociação foi ' + status_analitico + ' com sucesso.'), 'Atenção', 0);
+  end;
+end;
+
+procedure TfrManutencaoNegociacoes.btAprovarNegociacaoClick(Sender: TObject);
+begin
+  inherited;
+  AlterarStatus('APR');
+end;
+
+procedure TfrManutencaoNegociacoes.btCancelarNegociacaoClick(Sender: TObject);
+begin
+  inherited;
+  AlterarStatus('CAN');
+end;
+
+procedure TfrManutencaoNegociacoes.btConcluirNegociacaoClick(Sender: TObject);
+begin
+  inherited;
+  AlterarStatus('CON');
+end;
+
+procedure TfrManutencaoNegociacoes.btPesquisarClick(Sender: TObject);
+var
+  frmPesquisa: TFrPesquisarNegociacoes;
+begin
+  inherited;
+  frmPesquisa := TFrPesquisarNegociacoes.Create(Self);
+  frmPesquisa.ShowModal;
+
+  Initialize(negociacao);
+  negociacao := Default(_Negociacao.WebNegociacao);
+
+  if frmPesquisa.negociacao.negociacao_id > 0 then
+    negociacao := frmPesquisa.negociacao;
+
+  FreeAndNil(frmPesquisa);
+
+  if negociacao.negociacao_id = 0 then
+    Exit;
+
+  negociacao_id := negociacao.negociacao_id;
+  MontarDados(negociacao);
+end;
+
+procedure TfrManutencaoNegociacoes.FormCreate(Sender: TObject);
+begin
+  inherited;
+  sgItens.Cells[cProduto_Id, sgItens.FixedRows -1] := 'Código';
+  sgItens.Cells[cNome, sgItens.FixedRows -1] := 'Produto';
+  sgItens.Cells[cPreco_Venda, sgItens.FixedRows -1] := 'Preço venda';
+  sgItens.Cells[cQuantidade, sgItens.FixedRows -1] := 'Quantidade';
+  sgItens.Cells[cTotal_Produto, sgItens.FixedRows -1] := 'Total';
+  negociacao_id := 0;
+  total_geral := 0;
+end;
+
+procedure TfrManutencaoNegociacoes.MontarDados(negociacao: WebNegociacao);
+begin
+  eProdutorId.Text := NPadrao(negociacao.produtor_id, 0);
+  eNomeProdutor.Text := negociacao.nome_produtor;
+
+  eDistribuidorId.Text := NPadrao(negociacao.distribuidor_id, 0);
+  eNomeDistribuidor.Text := negociacao.nome_distribuidor;
+
+  eDataCadastro.Text := DateToStr(negociacao.data_cadastro);
+
+  stStatus.Caption := Decode(
+    negociacao.status,
+    [
+      'PEN', 'Pendente',
+      'APR', 'Aprovada',
+      'CON', 'Concluído',
+      'CAN', 'Cancelada'
+    ]
+  );
+
+  stTitStatus.Color := clTeal;
+  if negociacao.status = 'CAN' then
+    stTitStatus.Color := clRed;
+
+  AjustarBotoes;
+  PreencherGrid;
+end;
+
+procedure TfrManutencaoNegociacoes.PreencherGrid;
+var
+  i: Integer;
+  linha: Integer;
+begin
+  linha := sgItens.FixedRows;
+  sgItens.RowCount := sgItens.FixedRows + 1;
+  total_geral := 0;
+
+  for i := Low(negociacao.itens_negociacao) to High(negociacao.itens_negociacao) do begin
+    sgItens.Cells[cProduto_Id, linha] := NPadrao(negociacao.itens_negociacao[i].produto_id, 0);
+    sgItens.Cells[cNome, linha] := negociacao.itens_negociacao[i].nome_produto;
+    sgItens.Cells[cPreco_Venda, linha] := NPadrao(negociacao.itens_negociacao[i].preco_venda);
+    sgItens.Cells[cQuantidade, linha] := NPadrao(negociacao.itens_negociacao[i].quantidade);
+    sgItens.Cells[cTotal_Produto, linha] := NPadrao(negociacao.itens_negociacao[i].preco_venda * negociacao.itens_negociacao[i].quantidade);
+
+    total_geral := total_geral + Valor(sgItens.Cells[cTotal_Produto, linha]);
+
+    Inc(linha);
+  end;
+
+  sgItens.RowCount := IIf(linha <> sgItens.RowCount -1, linha, sgItens.RowCount);
+  eTotalGeral.Text := NPadrao(total_geral);
+end;
+
+end.

@@ -1,0 +1,25 @@
+unit PesquisaTeste;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CrudPesquisar, Vcl.Grids, Vcl.StdCtrls,
+  Vcl.ExtCtrls;
+
+type
+  TFrCrudPesquisar1 = class(TFrCrudPesquisar)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrCrudPesquisar1: TFrCrudPesquisar1;
+
+implementation
+
+{$R *.dfm}
+
+end.

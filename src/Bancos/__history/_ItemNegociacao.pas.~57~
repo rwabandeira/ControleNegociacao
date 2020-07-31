@@ -1,0 +1,111 @@
+﻿unit _ItemNegociacao;
+
+interface
+
+uses
+  SysUtils, _DB, SqlExPr, Forms, _Biblioteca;
+
+Type
+  WebItemNegociacao = record
+    negociacao_id: Integer;
+    item_id: Integer;
+    produto_id: Integer;
+    nome_produto: string;
+    quantidade: Double;
+    preco_venda: Double;
+  end;
+  TArrayOfWebItemNegociacao = array of WebItemNegociacao;
+
+function BuscarItemNegociacaoes(con: TSqlConnection; comando: string): TArrayOfWebItemNegociacao;
+procedure AtualizarItemNegociacao(con: TSqlConnection; negociacao_id: Integer; itens: TArrayOfWebItemNegociacao);
+
+implementation
+
+procedure AtualizarItemNegociacao(con: TSqlConnection; negociacao_id: Integer; itens: TArrayOfWebItemNegociacao);
+var
+  pesq: TSqlQuery;
+  i: Integer;
+begin
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('delete from ITENS_NEGOCIACOES');
+  pesq.SQL.Add('where NEGOCIACAO_ID = ' + QuotedStr(IntToStr(negociacao_id)));
+  pesq.ExecSQL;
+  pesq.Close;
+  pesq.SQL.Clear;
+
+  for i := Low(itens) to High(itens) do begin
+    pesq.SQL.Add('insert into ITENS_NEGOCIACOES (');
+    pesq.SQL.Add('  NEGOCIACAO_ID,');
+    pesq.SQL.Add('  ITEM_ID,');
+    pesq.SQL.Add('  PRODUTO_ID,');
+    pesq.SQL.Add('  QUANTIDADE,');
+    pesq.SQL.Add('  PRECO_VENDA');
+    pesq.SQL.Add(') values (');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(negociacao_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(itens[i].item_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(IntToStr(itens[i].produto_id)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(ToNumber(itens[i].quantidade)) + ',');
+    pesq.SQL.Add('  ' + QuotedStr(ToNumber(itens[i].preco_venda)) + '');
+    pesq.SQL.Add(')');
+
+    pesq.ExecSQL;
+    pesq.Close;
+    pesq.SQL.Clear;
+  end;
+
+  pesq.Active := False;
+  pesq.Free;
+  con.Free;
+end;
+
+function BuscarItemNegociacaoes(con: TSqlConnection; comando: string): TArrayOfWebItemNegociacao;
+var
+  pesq: TSqlQuery;
+begin
+  Result := nil;
+
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  ITE.NEGOCIACAO_ID,');
+  pesq.SQL.Add('  ITE.ITEM_ID,');
+  pesq.SQL.Add('  ITE.PRODUTO_ID,');
+  pesq.SQL.Add('  PRO.NOME as NOME_PRODUTO,');
+  pesq.SQL.Add('  ITE.QUANTIDADE,');
+  pesq.SQL.Add('  ITE.PRECO_VENDA');
+  pesq.SQL.Add('from');
+  pesq.SQL.Add('  ITENS_NEGOCIACOES ITE');
+
+  pesq.SQL.Add('inner join PRODUTOS PRO');
+  pesq.SQL.Add('on ITE.PRODUTO_ID = PRO.PRODUTO_ID');
+
+  pesq.SQL.Add('where 1 = 1');
+
+  pesq.SQL.Add(comando);
+
+  pesq.SQL.Add('order by');
+  pesq.SQL.Add('  ITEM_ID');
+
+  pesq.Open;
+
+  while not pesq.Eof do begin
+    SetLength(Result, Length(Result) + 1);
+
+    Result[High(Result)].negociacao_id := pesq.FieldByName('NEGOCIACAO_ID').AsInteger;
+    Result[High(Result)].item_id := pesq.FieldByName('ITEM_ID').AsInteger;
+    Result[High(Result)].produto_id := pesq.FieldByName('PRODUTO_ID').AsInteger;
+    Result[High(Result)].nome_produto := pesq.FieldByName('NOME_PRODUTO').AsString;
+    Result[High(Result)].quantidade := pesq.FieldByName('QUANTIDADE').AsFloat;
+    Result[High(Result)].preco_venda := pesq.FieldByName('PRECO_VENDA').AsCurrency;
+
+    pesq.Next;
+  end;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+end.

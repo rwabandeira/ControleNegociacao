@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, _LimiteCredito,
   PesquisarDistribuidores, Vcl.ExtCtrls, Distribuidores, _Distribuidor, _DB,
-  SqlExPr;
+  SqlExPr, _Biblioteca;
 
 type
   TFrLimiteCreditos = class(TForm)
@@ -65,7 +65,7 @@ begin
     SetLength(limite_creditos, Length(limite_creditos) + 1);
     limite_creditos[High(limite_creditos)].distribuidor_id := StrToInt(sgLimiteCredito.Cells[cDistribuidor_Id, i]);
     limite_creditos[High(limite_creditos)].nome_distribuidor := sgLimiteCredito.Cells[cNome, i];
-    limite_creditos[High(limite_creditos)].limite_credito := StrToInt(sgLimiteCredito.Cells[cLimite_Credito, i]);
+    limite_creditos[High(limite_creditos)].limite_credito := Valor(sgLimiteCredito.Cells[cLimite_Credito, i]);
   end;
 
   Close;
@@ -102,7 +102,6 @@ end;
 procedure TFrLimiteCreditos.eDistribuidorIdKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 var
-  con: TSqlConnection;
   distribuidores: TArrayOfWebDistribuidor;
 begin
   if Key <> VK_RETURN then
@@ -110,11 +109,9 @@ begin
 
   distribuidores := nil;
   if eDistribuidorId.Text <> '' then begin
-    con := _DB.Conexao;
-    distribuidores := _Distribuidor.BuscarDistribuidores(con, 'and DISTRIBUIDOR_ID = ' + eDistribuidorId.Text);
-
+    distribuidores := _Distribuidor.BuscarDistribuidores(Conexao, 'and DISTRIBUIDOR_ID = ' + eDistribuidorId.Text);
     if distribuidores = nil then begin
-      Application.MessageBox('Distribuidor não encontrado!!', 'Atenção', 0);
+      Application.MessageBox('Distribuidor não encontrado!', 'Atenção', 0);
       Abort;
     end;
   end;
@@ -174,7 +171,7 @@ begin
   linha := sgLimiteCredito.RowCount -1;
   sgLimiteCredito.Cells[cDistribuidor_Id, linha] := eDistribuidorId.Text;
   sgLimiteCredito.Cells[cNome, linha] := eNome.Text;
-  sgLimiteCredito.Cells[cLimite_Credito, linha] := eLimiteCredito.Text;
+  sgLimiteCredito.Cells[cLimite_Credito, linha] := NPadraoStr(eLimiteCredito.Text);
 
   linha := linha + 1;
 

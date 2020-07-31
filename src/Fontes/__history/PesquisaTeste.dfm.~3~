@@ -1,0 +1,5 @@
+inherited FrCrudPesquisar1: TFrCrudPesquisar1
+  Caption = 'FrCrudPesquisar1'
+  PixelsPerInch = 96
+  TextHeight = 13
+end

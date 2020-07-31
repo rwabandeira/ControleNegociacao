@@ -1,0 +1,28 @@
+object FrPesquisarProdutos: TFrPesquisarProdutos
+  Caption = 'Pesquisa de Produtos'
+  PixelsPerInch = 96
+  TextHeight = 13
+  object sgPesquisa: TStringGrid
+    Left = 0
+    Top = 56
+    Width = 605
+    Height = 257
+    Align = alClient
+    ColCount = 3
+    DefaultRowHeight = 19
+    FixedCols = 0
+    RowCount = 2
+    Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRowSelect]
+    TabOrder = 1
+    OnDblClick = sgPesquisaDblClick
+    OnEnter = sgPesquisaEnter
+    OnKeyDown = sgPesquisaKeyDown
+    ColWidths = (
+      66
+      368
+      122)
+    RowHeights = (
+      19
+      19)
+  end
+end

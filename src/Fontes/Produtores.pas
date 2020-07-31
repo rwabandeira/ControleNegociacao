@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, CrudCadastro, StdCtrls, Buttons, ExtCtrls, Mask, SqlExPr,
   PesquisarProdutores, _Produtor, UITypes, _Biblioteca, Grids, _LimiteCredito,
-  PesquisarDistribuidores, LimiteCreditos;
+  PesquisarDistribuidores, LimiteCreditos, _DB;
 
 type
   TFrProdutores = class(TFrCrudCadastro)
@@ -57,8 +57,6 @@ implementation
 
 {$R *.dfm}
 
-uses _DB;
-
 procedure TFrProdutores.PreencherGrid;
 var
   i: Integer;
@@ -70,7 +68,7 @@ begin
   for i := Low(limite_creditos) to High(limite_creditos) do begin
     sgLimiteCredito.Cells[cDistribuidor_Id, linha] := IntToStr(limite_creditos[i].distribuidor_id);
     sgLimiteCredito.Cells[cNome, linha] := limite_creditos[i].nome_distribuidor;
-    sgLimiteCredito.Cells[cLimite_Credito, linha] := FloatToStr(limite_creditos[i].limite_credito);
+    sgLimiteCredito.Cells[cLimite_Credito, linha] := NPadrao(limite_creditos[i].limite_credito);
 
     linha := linha + 1;
   end;
@@ -113,37 +111,31 @@ begin
 end;
 
 procedure TFrProdutores.btExcluirClick(Sender: TObject);
-var
-  con: TSqlConnection;
 begin
   inherited;
   if eCodigo.Text = '' then
     Abort;
 
   if MessageDlg('Deseja remover o produtor selecionado?', mtconfirmation, mbokcancel, 0) = 1 then begin
-    con := _DB.Conexao;
-
     try
-      _Produtor.ExcluirProdutor(con, StrToInt(eCodigo.Text));
+      _Produtor.ExcluirProdutor(Conexao, StrToInt(eCodigo.Text));
       Application.MessageBox('Registro excluido com sucesso!', 'Atenção', 0);
       btCancelarClick(Self);
-    except on e: Exception do
-      ShowMessage(e.Message);
-    End;
+    except
+      on e: Exception do
+        ShowMessage(e.Message);
+    end;
   end;
 end;
 
 procedure TFrProdutores.btGravarClick(Sender: TObject);
 var
-  con: TSqlConnection;
   produtor: WebProdutor;
   i: Integer;
 begin
   inherited;
   VerificarDados;
   
-  con := _DB.Conexao;
-
   if eCodigo.Text = '' then
     produtor.produtor_id := 0
   else
@@ -166,15 +158,16 @@ begin
     SetLength(produtor.limite_creditos, Length(produtor.limite_creditos) + 1);
     produtor.limite_creditos[High(produtor.limite_creditos)].produtor_id := StrToInt(eCodigo.Text);
     produtor.limite_creditos[High(produtor.limite_creditos)].distribuidor_id := StrToInt(sgLimiteCredito.Cells[cDistribuidor_Id, i]);
-    produtor.limite_creditos[High(produtor.limite_creditos)].limite_credito := StrToInt(sgLimiteCredito.Cells[cLimite_Credito, i]);
+    produtor.limite_creditos[High(produtor.limite_creditos)].limite_credito := Valor(sgLimiteCredito.Cells[cLimite_Credito, i]);
   end;
 
   try
-    _Produtor.AtualizarProdutor(con, produtor);
+    _Produtor.AtualizarProdutor(Conexao, produtor);
     Application.MessageBox(Pchar('Produtor atualizado com sucesso!'), 'Atenção', 0);
     btCancelarClick(Self);
-  except on e: Exception do
-    ShowMessage(e.Message);
+  except
+    on e: Exception do
+      ShowMessage(e.Message);
   end;
 end;
 
@@ -205,7 +198,7 @@ begin
     linha := sgLimiteCredito.RowCount -1;
     sgLimiteCredito.Cells[cDistribuidor_Id, linha] := IntToStr(limite_creditos[i].distribuidor_id);
     sgLimiteCredito.Cells[cNome, linha] := limite_creditos[i].nome_distribuidor;
-    sgLimiteCredito.Cells[cLimite_Credito, linha] := FloatToStr(limite_creditos[i].limite_credito);
+    sgLimiteCredito.Cells[cLimite_Credito, linha] := NPadrao(limite_creditos[i].limite_credito);
 
     Inc(linha);
 
@@ -233,8 +226,12 @@ begin
 
   FreeAndNil(frmPesquisa);
 
-  if produtores <> nil then
-    MontarDados(produtores);
+  if produtores = nil then
+    Exit;
+
+  eCodigo.Text := IntToStr(produtores[0].produtor_id);
+  novo_registro := False;
+  MontarDados(produtores);
 end;
 
 procedure TFrProdutores.btRemoverClick(Sender: TObject);
@@ -245,27 +242,25 @@ end;
 
 procedure TFrProdutores.eCodigoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-  con: TSqlConnection;
 begin
   inherited;
-  if Key = VK_RETURN then begin
-    produtores := nil;
+  if Key <> VK_RETURN then
+    Exit;
 
-    if eCodigo.Text <> '' then begin
-      con := _DB.Conexao;
-      produtores := _Produtor.BuscarProdutores(con, 'and PRODUTOR_ID = ' + eCodigo.Text);
+  produtores := nil;
 
-      if produtores = nil then begin
-        Application.MessageBox('Produtor não encontrado!!', 'Atenção', 0);
-        Abort;
-      end;
+  if eCodigo.Text <> '' then begin
+    produtores := _Produtor.BuscarProdutores(Conexao, 'and PRODUTOR_ID = ' + eCodigo.Text);
 
-      novo_registro := False;
+    if produtores = nil then begin
+      Application.MessageBox('Produtor não encontrado!', 'Atenção', 0);
+      Exit;
     end;
 
-    MontarDados(produtores);
+    novo_registro := False;
   end;
+
+  MontarDados(produtores);
 end;
 
 procedure TFrProdutores.FormCreate(Sender: TObject);
@@ -281,7 +276,6 @@ end;
 procedure TFrProdutores.MontarDados(produtores: TArrayOfWebProdutor);
 var
   i: Integer;
-  con: TSqlConnection;
 begin
   if not eNome.Enabled then
     eNome.Enabled := True;
@@ -318,9 +312,7 @@ begin
   end;
 
   if not novo_registro then begin
-    con := _DB.Conexao;
-    limite_creditos := _LimiteCredito.BuscarLimiteCreditos(con, StrToInt(eCodigo.Text));
-
+    limite_creditos := _LimiteCredito.BuscarLimiteCreditosProdutor(Conexao, StrToInt(eCodigo.Text));
     PreencherGrid;
   end;
 

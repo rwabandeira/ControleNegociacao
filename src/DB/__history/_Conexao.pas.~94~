@@ -1,0 +1,39 @@
+unit _Conexao;
+
+interface
+
+uses
+  SqlExpr, Classes, _DB;
+
+type
+  Conexaos = class(TComponent)
+    public
+      constructor Create(AOwner: TComponent); override;
+      destructor Destroy; override;
+      function getConexao: TSQLConnection;
+    protected
+      con: TSQLConnection;
+  end;
+
+implementation
+
+{ Conexao }
+
+constructor Conexao.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  con := _DB.Conexao;
+end;
+
+destructor Conexao.Destroy;
+begin
+  con.Free;
+  inherited Destroy;
+end;
+
+function Conexao.getConexao: TSQLConnection;
+begin
+  Result := con;
+end;
+
+end.

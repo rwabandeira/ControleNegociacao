@@ -1,0 +1,212 @@
+unit Distribuidores;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, CrudCadastro, StdCtrls, Buttons, ExtCtrls, Mask, SqlExPr,
+  PesquisarDistribuidores, _Distribuidor, UITypes, _Biblioteca, Vcl.Grids, _DB;
+
+type
+  TFrDistribuidores = class(TFrCrudCadastro)
+    lbCodigo: TLabel;
+    lbNome: TLabel;
+    lbCpfCnpj: TLabel;
+    eCodigo: TEdit;
+    eNome: TEdit;
+    rgInscricao: TRadioGroup;
+    meCpfCnpj: TMaskEdit;
+    procedure btCancelarClick(Sender: TObject);
+    procedure btExcluirClick(Sender: TObject);
+    procedure btGravarClick(Sender: TObject);
+    procedure btPesquisarClick(Sender: TObject);
+    procedure eCodigoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure rgInscricaoClick(Sender: TObject);
+  private
+    { Private declarations }
+    distribuidores: TArrayOfWebDistribuidor;
+    procedure MontarDados(distribuidores: TArrayOfWebDistribuidor);
+    procedure VerificarDados;
+  public
+    { Public declarations }
+  end;
+
+var
+  FrDistribuidores: TFrDistribuidores;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFrDistribuidores.btCancelarClick(Sender: TObject);
+begin
+  inherited;
+  eCodigo.Clear;
+  eNome.Clear;
+  rgInscricao.ItemIndex := -1;
+  lbCpfCnpj.Caption := 'CPF/CNPJ';
+  meCpfCnpj.Clear;
+  meCpfCnpj.EditMask := '';
+
+  eCodigo.Enabled := True;
+  eNome.Enabled := False;
+  rgInscricao.Enabled := False;
+  meCpfCnpj.Enabled := False;
+
+  eCodigo.SetFocus;
+end;
+
+procedure TFrDistribuidores.btExcluirClick(Sender: TObject);
+begin
+  inherited;
+  if eCodigo.Text = '' then
+    Abort;
+
+  if MessageDlg('Deseja remover o distribuidor selecionado?', mtconfirmation, mbokcancel, 0) = 1 then begin
+    try
+      _Distribuidor.ExcluirDistribuidor(Conexao, StrToInt(eCodigo.Text));
+      Application.MessageBox('Registro excluido com sucesso!', 'Atenção', 0);
+      btCancelarClick(Self);
+    except
+      on e: Exception do
+        ShowMessage(e.Message);
+    end;
+  end;
+end;
+
+procedure TFrDistribuidores.btGravarClick(Sender: TObject);
+var
+  distribuidor: WebDistribuidor;
+begin
+  inherited;
+  VerificarDados;
+  
+  if eCodigo.Text = '' then
+    distribuidor.distribuidor_id := 0
+  else
+    distribuidor.distribuidor_id := StrToInt(eCodigo.Text);
+
+  distribuidor.nome := eNome.Text;
+
+  if rgInscricao.ItemIndex = 0 then
+    distribuidor.inscricao := 'F'
+  else
+    distribuidor.inscricao := 'J';
+
+  distribuidor.cpf_cnpj := meCpfCnpj.Text;
+
+  try
+    _Distribuidor.AtualizarDistribuidor(Conexao, distribuidor);
+    Application.MessageBox(Pchar('Distribuidor atualizado com sucesso!'), 'Atenção', 0);
+    btCancelarClick(Self);
+  except
+    on e: Exception do
+      ShowMessage(e.Message);
+  end;
+
+  con.Free;
+end;
+
+procedure TFrDistribuidores.btPesquisarClick(Sender: TObject);
+var
+  frmPesquisa: TFrPesquisarDistribuidores;
+begin
+  inherited;
+  frmPesquisa := TFrPesquisarDistribuidores.Create(Self);
+  frmPesquisa.ShowModal;
+
+  distribuidores := nil;
+
+  if frmPesquisa.distribuidor.distribuidor_id > 0 then begin
+    SetLength(distribuidores, 1);
+    distribuidores[0].distribuidor_id := frmPesquisa.distribuidor.distribuidor_id;
+    distribuidores[0].nome := frmPesquisa.distribuidor.nome;
+    distribuidores[0].inscricao := frmPesquisa.distribuidor.inscricao;
+    distribuidores[0].cpf_cnpj := frmPesquisa.distribuidor.cpf_cnpj;
+  end;
+
+  FreeAndNil(frmPesquisa);
+
+  if distribuidores <> nil then
+    MontarDados(distribuidores);
+end;
+
+procedure TFrDistribuidores.eCodigoKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if Key <> VK_RETURN then
+    Exit;
+
+  distribuidores := nil;
+  if eCodigo.Text <> '' then begin
+    distribuidores := _Distribuidor.BuscarDistribuidores(Conexao, 'and DISTRIBUIDOR_ID = ' + eCodigo.Text);
+
+    if distribuidores = nil then begin
+      Application.MessageBox('Distribuidor não encontrado!!', 'Atenção', 0);
+      Abort;
+    end;
+  end;
+
+  MontarDados(distribuidores);
+end;
+
+procedure TFrDistribuidores.MontarDados(distribuidores: TArrayOfWebDistribuidor);
+var
+  i: Integer;
+begin
+  if not eNome.Enabled then
+    eNome.Enabled := True;
+
+  if not rgInscricao.Enabled then
+    rgInscricao.Enabled := True;
+
+  rgInscricao.ItemIndex := 0;
+
+  if not meCpfCnpj.Enabled then
+    meCpfCnpj.Enabled := True;
+
+  for i := Low(distribuidores) to High(distribuidores) do begin
+    eCodigo.Text := IntToStr(distribuidores[i].distribuidor_id);
+    eNome.Text := distribuidores[i].nome;
+
+    if distribuidores[i].inscricao = 'F' then begin
+      rgInscricao.ItemIndex := 0;
+      meCpfCnpj.EditMask := '000\.000\.000\-00;1;_';
+    end
+    else begin
+      rgInscricao.ItemIndex := 1;
+      meCpfCnpj.EditMask := '00\.000\.000\/0000\-00;1;_';
+    end;
+
+    meCpfCnpj.Text := distribuidores[i].cpf_cnpj;
+  end;
+
+  eNome.SetFocus;
+  eCodigo.Enabled := False;
+end;
+
+procedure TFrDistribuidores.rgInscricaoClick(Sender: TObject);
+begin
+  inherited;
+  if rgInscricao.ItemIndex = 0 then begin
+    lbCpfCnpj.Caption := 'CPF';
+    meCpfCnpj.EditMask := '000\.000\.000\-00;1;_';
+  end
+  else begin
+    lbCpfCnpj.Caption := 'CNPJ';
+    meCpfCnpj.EditMask := '00\.000\.000\/0000\-00;1;_';
+  end;
+end;
+
+procedure TFrDistribuidores.VerificarDados;
+begin
+  if not _Biblioteca.ValidarCpfCnpj(meCpfCnpj.Text) then begin
+    MessageDlg('CPF ou CNPJ inválido!', mtInformation, mbOKCancel, 0);
+    meCpfCnpj.SetFocus;
+    Abort;
+  end;
+end;
+
+end.

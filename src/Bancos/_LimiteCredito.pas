@@ -3,7 +3,7 @@ unit _LimiteCredito;
 interface
 
 uses
-  SysUtils, _DB, SqlExPr, Forms;
+  SysUtils, _DB, SqlExPr, Forms, _Biblioteca;
 
 Type
   WebLimiteCreditos = record
@@ -14,8 +14,15 @@ Type
   end;
   TArrayOfWebLimiteCreditos = array of WebLimiteCreditos;
 
-function BuscarLimiteCreditos(con: TSqlConnection; produtor_id: Integer): TArrayOfWebLimiteCreditos;
+function BuscarLimiteCreditosProdutor(con: TSqlConnection; produtor_id: Integer): TArrayOfWebLimiteCreditos;
 procedure AtualizarLimiteCredito(con: TSqlConnection; limite_creditos: TArrayOfWebLimiteCreditos);
+function ExisteLimiteNegociacao(
+  con: TSqlConnection;
+  produtor_id: Integer;
+  distribuidor_id: Integer;
+  total_negociacao: Double;
+  valor_original_negociacao: Double
+): Boolean;
 
 implementation
 
@@ -38,7 +45,7 @@ begin
     pesq.SQL.Add(') values (');
     pesq.SQL.Add('  ' + QuotedStr(IntToStr(limite_creditos[i].produtor_id)) + ',');
     pesq.SQL.Add('  ' + QuotedStr(IntToStr(limite_creditos[i].distribuidor_id)) + ',');
-    pesq.SQL.Add('  ' + QuotedStr(FloatToStr(limite_creditos[i].limite_credito)) + '');
+    pesq.SQL.Add('  ' + QuotedStr(NPadrao(limite_creditos[i].limite_credito)) + '');
     pesq.SQL.Add(')');
 
     pesq.ExecSQL;
@@ -48,7 +55,7 @@ begin
   pesq.Free;
 end;
 
-function BuscarLimiteCreditos(con: TSqlConnection; produtor_id: Integer): TArrayOfWebLimiteCreditos;
+function BuscarLimiteCreditosProdutor(con: TSqlConnection; produtor_id: Integer): TArrayOfWebLimiteCreditos;
 var
   pesq: TSqlQuery;
 begin
@@ -85,6 +92,48 @@ begin
 
     pesq.Next;
   end;
+
+  pesq.Active := False;
+  pesq.Free;
+end;
+
+function ExisteLimiteNegociacao(
+  con: TSqlConnection;
+  produtor_id: Integer;
+  distribuidor_id: Integer;
+  total_negociacao: Double;
+  valor_original_negociacao: Double
+): Boolean;
+var
+  pesq: TSqlQuery;
+begin
+  pesq := TSqlQuery.Create(con);
+  pesq.SQLConnection := con;
+
+  pesq.SQL.Add('select');
+  pesq.SQL.Add('  LIM.LIMITE_CREDITO - sum(COALESCE(ITE.QUANTIDADE, 0) * COALESCE(ITE.PRECO_VENDA ,0)) as SALDO');
+  pesq.SQL.Add('from');
+  pesq.SQL.Add('  LIMITE_CREDITOS LIM');
+
+  pesq.SQL.Add('left join NEGOCIACOES NEG');
+  pesq.SQL.Add('on LIM.PRODUTOR_ID = NEG.PRODUTOR_ID');
+  pesq.SQL.Add('and LIM.DISTRIBUIDOR_ID = NEG.DISTRIBUIDOR_ID');
+  pesq.SQL.Add('and NEG.STATUS <> ''CAN''');
+
+  pesq.SQL.Add('left join ITENS_NEGOCIACOES ITE');
+  pesq.SQL.Add('on NEG.NEGOCIACAO_ID = ITE.NEGOCIACAO_ID');
+
+  pesq.SQL.Add('where LIM.PRODUTOR_ID = :P1');
+  pesq.SQL.Add('and LIM.DISTRIBUIDOR_ID = :P2');
+
+  pesq.SQL.Add('group by');
+  pesq.SQL.Add('  LIM.LIMITE_CREDITO');
+
+  pesq.ParamByName('P1').AsInteger := produtor_id;
+  pesq.ParamByName('P2').AsInteger := distribuidor_id;
+
+  pesq.Open;
+  Result := ((pesq.FieldByName('SALDO').AsFloat + valor_original_negociacao) > total_negociacao);
 
   pesq.Active := False;
   pesq.Free;
