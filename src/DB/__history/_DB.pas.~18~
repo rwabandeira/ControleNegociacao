@@ -5,37 +5,6 @@ interface
 uses
   SqlExPr;
 
-Conexao = class(TComponent)
-  private
-    senha: string;
-    pesq_datas: TConsulta;
-    proc_set_conexao: Procedimento;
-    conexao_logs_banco: Conexao;
-    id_conexao: integer;
-    proc_adicionar_log: Procedimento;
-    processo_alteracao_base_log: string;
-    funcionario_amarilis_id: string;
-    sistema_banco: TSistemaBanco;
-
-    FDepoisConectar: TNotifyEvent;
-    FPerdeuConexao: TNotifyEvent;
-
-    controle_read_write: TMultiReadExclusiveWriteSynchronizer;
-    conexao_disponivel: Boolean;
-    data_hora_ultima_utilizacao: TDateTime;
-
-    procedure OraSessionAfterConnect(Sender: TObject);
-    procedure OraSessionError(Sender: TObject; E: EDAError; var Fail: Boolean);
-  public
-    con: string;
-
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-  protected
-    conexao: TOraSession;
-  published
-  end;
-
 function Conexao: TSQLConnection;
 
 implementation
